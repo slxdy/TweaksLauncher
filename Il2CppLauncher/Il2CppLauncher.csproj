@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
+	<Platforms>x64</Platforms>
+	<OutDir>../output/$(Configuration)/</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EasyNetLog" Version="2.1.4" />
+    <PackageReference Include="Il2CppInterop.Generator" Version="1.4.5" />
+    <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.5" />
+    <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.5" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="all" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="DLLs/**">
+			<TargetPath>%(Filename)%(Extension)</TargetPath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="DLLs\" />
+	</ItemGroup>
+
+</Project>
