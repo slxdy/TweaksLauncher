@@ -8,6 +8,7 @@ public class GameInfo
     public required string GameDataDirectory { get; init; }
     public required string GameExePath { get; init; }
     public required string GameAssemblyPath { get; init; }
+    public required string LauncherGameDirectory { get; init; }
     public required Version UnityVersion { get; init; }
 
     internal static GameInfo? Read(string gameDirectory)
@@ -22,7 +23,8 @@ public class GameInfo
         if (dataDir == null)
             return null;
 
-        var exe = dataDir[..^5] + ".exe";
+        var gameName = dataDir[..^5];
+        var exe = gameName + ".exe";
 
         var assembly = Path.Combine(gameDirectory, "GameAssembly.dll");
         if (!File.Exists(assembly))
@@ -39,12 +41,16 @@ public class GameInfo
         if (!Version.TryParse(FileVersionInfo.GetVersionInfo(unityPlayer).FileVersion, out var unityVersion))
             return null;
 
+        var launcherDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, gameName);
+        Directory.CreateDirectory(launcherDir);
+
         return new()
         {
             GameDirectory = gameDirectory,
             GameDataDirectory = dataDir,
             GameExePath = exe,
             GameAssemblyPath = assembly,
+            LauncherGameDirectory = launcherDir,
             UnityVersion = unityVersion
         };
     }

@@ -30,4 +30,8 @@
 		<Folder Include="DLLs\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Il2CppLauncher.Mod\Il2CppLauncher.Mod.csproj" />
+	</ItemGroup>
+
 </Project>
