@@ -30,7 +30,7 @@ internal unsafe static class Program
                     var gameArgs = new string[args.Length - 1];
                     Array.Copy(args, 1, gameArgs, 0, gameArgs.Length);
 
-                    return StartGame(gamePath, gameArgs);
+                    return StartGame(gameArgs);
                 }
                 else
                 {
@@ -54,7 +54,7 @@ internal unsafe static class Program
         return 0;
     }
 
-    private static int StartGame(string gamePath, string[] args)
+    private static int StartGame(string[] args)
     {
         logger.Log($"Game Exe: '{gameInfo.GameExePath}'");
         logger.Log($"Unity Version: '{gameInfo.UnityVersion}'");

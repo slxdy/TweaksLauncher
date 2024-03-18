@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34707.107
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMod", "Il2CppLauncher\Il2CppLauncher.csproj", "{7FD17070-EA47-4F63-9BD6-CF350ECF6BC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Il2CppLauncher", "Il2CppLauncher\Il2CppLauncher.csproj", "{7FD17070-EA47-4F63-9BD6-CF350ECF6BC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
