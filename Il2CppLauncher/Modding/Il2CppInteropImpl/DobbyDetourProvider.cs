@@ -1,7 +1,7 @@
 ﻿using Il2CppInterop.Runtime.Injection;
 using System.Runtime.InteropServices;
 
-namespace Il2CppLauncher.Il2CppInteropImpl;
+namespace Il2CppLauncher.Modding.Il2CppInteropImpl;
 
 internal unsafe class DobbyDetourProvider : IDetourProvider
 {

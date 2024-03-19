@@ -1,5 +1,4 @@
-﻿using Il2CppLauncher.Il2CppInteropImpl;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Windows.Win32;
@@ -10,7 +9,7 @@ namespace Il2CppLauncher;
 internal static partial class UnityPlayer
 {
     [NotNull] private static Il2CppInitSig? il2cppInit = null;
-    private static ModLogger logger = new("UnityPlayer");
+    private static ModuleLogger logger = new("UnityPlayer");
 
     [LibraryImport("UnityPlayer.dll")]
     private static partial int UnityMain(nint hInstance, nint hPrevInstance, [MarshalAs(UnmanagedType.LPWStr)] ref string lpCmdline, int nShowCmd);
@@ -35,7 +34,7 @@ internal static partial class UnityPlayer
 
         var result = il2cppInit(a);
 
-        Il2CppInteropImplementation.InitRuntime();
+        Program.InitializeModding();
 
         return result;
     }

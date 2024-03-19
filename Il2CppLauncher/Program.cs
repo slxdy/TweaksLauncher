@@ -1,12 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Il2CppLauncher.Modding;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Il2CppLauncher;
 
 internal unsafe static class Program
 {
-    private static ModLogger logger = new("Il2CppLauncher");
-    [NotNull] internal static GameInfo? gameInfo = null;
+    private static ModuleLogger logger = new("Il2CppLauncher");
+
+    [NotNull]
+    internal static LauncherContext? Context { get; private set; }
 
     private static int Main(string[] args)
     {
@@ -24,9 +27,11 @@ internal unsafe static class Program
 
             if (Directory.Exists(gamePath))
             {
-                gameInfo = GameInfo.Read(gamePath);
-                if (gameInfo != null)
+                Context = LauncherContext.Read(gamePath);
+                if (Context != null)
                 {
+                    logger.Log(Context.ProxiesDirectory);
+
                     var gameArgs = new string[args.Length - 1];
                     Array.Copy(args, 1, gameArgs, 0, gameArgs.Length);
 
@@ -56,12 +61,19 @@ internal unsafe static class Program
 
     private static int StartGame(string[] args)
     {
-        logger.Log($"Game Exe: '{gameInfo.GameExePath}'");
-        logger.Log($"Unity Version: '{gameInfo.UnityVersion}'");
+        logger.Log($"Game Exe: '{Context.GameExePath}'");
+        logger.Log($"Unity Version: '{Context.UnityVersion}'");
 
-        Directory.SetCurrentDirectory(gameInfo.GameDirectory);
-        ModuleSpoofer.Spoof(gameInfo.GameExePath);
+        ProxyGenerator.Generate();
+
+        Directory.SetCurrentDirectory(Context.GameDirectory);
+        ModuleSpoofer.Spoof(Context.GameExePath);
 
         return UnityPlayer.Start(args);
+    }
+
+    internal static void InitializeModding()
+    {
+        ModLoader.Init();
     }
 }

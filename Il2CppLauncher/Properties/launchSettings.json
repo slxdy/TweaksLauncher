@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Il2CppLauncher": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Programs\\Steam\\steamapps\\common\\Secret Neighbor\""
+    }
+  }
+}
