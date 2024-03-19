@@ -34,7 +34,6 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
             if (IsApplied)
                 return;
 
-            OriginalTrampoline = Dobby.Prepare(Target, Detour);
             Dobby.Commit(Target);
             IsApplied = true;
         }
