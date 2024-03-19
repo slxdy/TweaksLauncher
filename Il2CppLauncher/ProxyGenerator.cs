@@ -3,7 +3,7 @@ using Il2CppInterop.Generator;
 using Il2CppInterop.Generator.Runners;
 using System.IO.Compression;
 
-namespace Il2CppLauncher.Modding;
+namespace Il2CppLauncher;
 
 internal static class ProxyGenerator
 {
