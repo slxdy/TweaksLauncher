@@ -9,11 +9,11 @@ namespace Il2CppLauncher;
 
 internal unsafe static class ModuleSpoofer
 {
-    [NotNull] private static LdrGetDllFullNameSig? ldrGetDllFullName = null;
-    [NotNull] private static K32EnumProcessModulesSig? k32EnumProcessModules = null;
-    [NotNull] private static K32EnumProcessModulesExSig? k32EnumProcessModulesEx = null;
-    [NotNull] private static Module32Sig? module32FirstW = null;
-    [NotNull] private static Module32Sig? module32NextW = null;
+    [NotNull] private static Dobby.Patch<LdrGetDllFullNameSig>? ldrGetDllFullName = null;
+    [NotNull] private static Dobby.Patch<K32EnumProcessModulesSig>? k32EnumProcessModules = null;
+    [NotNull] private static Dobby.Patch<K32EnumProcessModulesExSig>? k32EnumProcessModulesEx = null;
+    [NotNull] private static Dobby.Patch<Module32Sig>? module32FirstW = null;
+    [NotNull] private static Dobby.Patch<Module32Sig>? module32NextW = null;
 
     private static nint fakeExeHandle;
     private static int currentPID;
@@ -35,15 +35,15 @@ internal unsafe static class ModuleSpoofer
         dotnetDir = Path.GetFullPath(GetModuleName(NativeLibrary.Load("coreclr")) + "/../../../..") + Path.DirectorySeparatorChar;
         baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-        ldrGetDllFullName = Dobby.Patch<LdrGetDllFullNameSig>("ntdll", "LdrGetDllFullName", OnLdrGetDllFullName);
-        k32EnumProcessModules = Dobby.Patch<K32EnumProcessModulesSig>("KernelBase", "K32EnumProcessModules", OnK32EnumProcessModules);
-        k32EnumProcessModulesEx = Dobby.Patch<K32EnumProcessModulesExSig>("KernelBase", "K32EnumProcessModulesEx", OnK32EnumProcessModulesEx);
-        module32FirstW = Dobby.Patch<Module32Sig>("Kernel32", "Module32FirstW", OnModule32FirstW);
-        module32NextW = Dobby.Patch<Module32Sig>("Kernel32", "Module32NextW", OnModule32NextW);
+        ldrGetDllFullName = new Dobby.Patch<LdrGetDllFullNameSig>("ntdll", "LdrGetDllFullName", OnLdrGetDllFullName);
+        k32EnumProcessModules = new Dobby.Patch<K32EnumProcessModulesSig>("KernelBase", "K32EnumProcessModules", OnK32EnumProcessModules);
+        k32EnumProcessModulesEx = new Dobby.Patch<K32EnumProcessModulesExSig>("KernelBase", "K32EnumProcessModulesEx", OnK32EnumProcessModulesEx);
+        module32FirstW = new Dobby.Patch<Module32Sig>("Kernel32", "Module32FirstW", OnModule32FirstW);
+        module32NextW = new Dobby.Patch<Module32Sig>("Kernel32", "Module32NextW", OnModule32NextW);
     }
     private static bool OnModule32FirstW(nint hSnapshot, MODULEENTRY32W* lpme)
     {
-        if (!module32FirstW(hSnapshot, lpme))
+        if (!module32FirstW.Original(hSnapshot, lpme))
         {
             *lpme = default;
             return false;
@@ -60,7 +60,7 @@ internal unsafe static class ModuleSpoofer
 
     private static bool OnModule32NextW(nint hSnapshot, MODULEENTRY32W* lpme)
     {
-        if (!module32NextW(hSnapshot, lpme))
+        if (!module32NextW.Original(hSnapshot, lpme))
         {
             *lpme = default;
             return false;
@@ -83,7 +83,7 @@ internal unsafe static class ModuleSpoofer
     private static bool OnK32EnumProcessModules(nint hProcess, nint* lphModule, uint cb, uint* lpcbNeeded)
     {
         if (PInvoke.GetProcessId((HANDLE)hProcess) != currentPID)
-            return k32EnumProcessModules(hProcess, lphModule, cb, lpcbNeeded);
+            return k32EnumProcessModules.Original(hProcess, lphModule, cb, lpcbNeeded);
 
         var size = 1024 * sizeof(nint);
         nint* modules;
@@ -92,7 +92,7 @@ internal unsafe static class ModuleSpoofer
             modules = (nint*)Marshal.AllocHGlobal(size);
 
             uint neededSize;
-            if (!k32EnumProcessModules(hProcess, modules, (uint)size, &neededSize))
+            if (!k32EnumProcessModules.Original(hProcess, modules, (uint)size, &neededSize))
             {
                 Marshal.FreeHGlobal((nint)modules);
                 return false;
@@ -130,7 +130,7 @@ internal unsafe static class ModuleSpoofer
     private static bool OnK32EnumProcessModulesEx(nint hProcess, nint* lphModule, uint cb, uint* lpcbNeeded, uint dwFilterFlag)
     {
         if (PInvoke.GetProcessId((HANDLE)hProcess) != currentPID)
-            return k32EnumProcessModulesEx(hProcess, lphModule, cb, lpcbNeeded, dwFilterFlag);
+            return k32EnumProcessModulesEx.Original(hProcess, lphModule, cb, lpcbNeeded, dwFilterFlag);
 
         var size = 1024 * sizeof(nint);
         nint* modules;
@@ -139,7 +139,7 @@ internal unsafe static class ModuleSpoofer
             modules = (nint*)Marshal.AllocHGlobal(size);
 
             uint neededSize;
-            if (!k32EnumProcessModulesEx(hProcess, modules, (uint)size, &neededSize, dwFilterFlag))
+            if (!k32EnumProcessModulesEx.Original(hProcess, modules, (uint)size, &neededSize, dwFilterFlag))
             {
                 Marshal.FreeHGlobal((nint)modules);
                 return false;
@@ -223,9 +223,9 @@ internal unsafe static class ModuleSpoofer
     private static nint OnLdrGetDllFullName(nint hModule, nint lpFilename)
     {
         if (hModule == 0 || hModule == ourHandle)
-            return ldrGetDllFullName(fakeExeHandle, lpFilename);
+            return ldrGetDllFullName.Original(fakeExeHandle, lpFilename);
 
-        return ldrGetDllFullName(hModule, lpFilename);
+        return ldrGetDllFullName.Original(hModule, lpFilename);
     }
 
     internal delegate nint LdrGetDllFullNameSig(nint hModule, nint lpFilename);

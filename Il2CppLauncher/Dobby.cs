@@ -27,16 +27,35 @@ internal unsafe static partial class Dobby
         return original;
     }
 
-    public static T Patch<T>(nint target, T detour) where T : Delegate
+    public class Patch<T> where T : Delegate
     {
-        var original = Prepare(target, Marshal.GetFunctionPointerForDelegate(detour));
-        Commit(target);
+        public T Original { get; private set; }
+        public T Detour { get; private set; }
+        public nint Target { get; private set; }
 
-        return Marshal.GetDelegateForFunctionPointer<T>(original);
-    }
+        public Patch(nint target, T detour)
+        {
+            Target = target;
+            Detour = detour;
 
-    public static T Patch<T>(string moduleName, string functionName, T detour) where T : Delegate
-    {
-        return Patch(NativeLibrary.GetExport(NativeLibrary.Load(moduleName), functionName), detour);
+            var original = Prepare(target, Marshal.GetFunctionPointerForDelegate(detour));
+            Commit(target);
+
+            Original = Marshal.GetDelegateForFunctionPointer<T>(original);
+        }
+
+        public Patch(string moduleName, string functionName, T detour) : this(NativeLibrary.GetExport(NativeLibrary.Load(moduleName), functionName), detour)
+        {
+
+        }
+
+        public void Dispose()
+        {
+            if (Target == 0)
+                return;
+
+            Destroy(Target);
+            Target = 0;
+        }
     }
 }

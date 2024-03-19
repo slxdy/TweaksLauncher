@@ -30,8 +30,6 @@ internal unsafe static class Program
                 Context = LauncherContext.Read(gamePath);
                 if (Context != null)
                 {
-                    logger.Log(Context.ProxiesDirectory);
-
                     var gameArgs = new string[args.Length - 1];
                     Array.Copy(args, 1, gameArgs, 0, gameArgs.Length);
 
@@ -70,10 +68,5 @@ internal unsafe static class Program
         ModuleSpoofer.Spoof(Context.GameExePath);
 
         return UnityPlayer.Start(args);
-    }
-
-    internal static void InitializeModding()
-    {
-        ModLoader.Init();
     }
 }

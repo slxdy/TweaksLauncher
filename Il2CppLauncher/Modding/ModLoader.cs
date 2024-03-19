@@ -7,6 +7,7 @@ internal static class ModLoader
 {
     private static ModuleLogger logger = new("Mod Loader");
     private static bool inited;
+    private static bool modsInited;
     private static List<LoadedMod> loadedMods = [];
 
     public static void Init()
@@ -24,6 +25,14 @@ internal static class ModLoader
         ModLogger.onLog += HandleLog;
 
         LoadModsFromPath();
+    }
+
+    public static void InitMods()
+    {
+        if (!inited || modsInited)
+            return;
+
+        modsInited = true;
 
         ForEachIMod(x => x.Initialize());
     }
@@ -124,6 +133,10 @@ internal static class ModLoader
         loadedMods.Add(mod);
 
         logger.Log($"Mod loaded: <color=green>{mod}</color>");
+
+        if (modsInited)
+            foreach (var iMod in mod.ModInterfaces)
+                iMod.Initialize();
 
         return mod;
     }
