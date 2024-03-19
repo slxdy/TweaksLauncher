@@ -37,14 +37,19 @@ internal static partial class UnityPlayer
     private unsafe static nint OnIl2CppRuntimeInvoke(nint method, nint obj, nint param, ref nint exc)
     {
         var name = Marshal.PtrToStringAnsi(IL2CPP.il2cpp_method_get_name(method));
-        if (name == "Awake")
-        {
-            il2cppRuntimeInvoke.Dispose();
+        var type = IL2CPP.il2cpp_method_get_class(method);
+        var typeName = Marshal.PtrToStringAnsi(IL2CPP.il2cpp_class_get_name(type));
+        var typeNamespace = Marshal.PtrToStringAnsi(IL2CPP.il2cpp_class_get_namespace(type));
 
-            ModLoader.InitMods();
+        logger.Log($"IL2CPP Invoking: {typeNamespace}.{typeName}::{name}");
+        //if (name == "Awake")
+        //{
+        //    il2cppRuntimeInvoke.Dispose();
 
-            return IL2CPP.il2cpp_runtime_invoke(method, obj, (void**)param, ref exc);
-        }
+        //    ModLoader.InitMods();
+
+        //    return IL2CPP.il2cpp_runtime_invoke(method, obj, (void**)param, ref exc);
+        //}
 
         return il2cppRuntimeInvoke.Original(method, obj, param, ref exc);
     }
