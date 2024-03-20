@@ -22,6 +22,8 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
 
         public bool IsApplied { get; private set; }
 
+        public bool IsPrepared { get; private set; }
+
         public DobbyDetour(nint target, Delegate detour)
         {
             detourObj = detour;
@@ -33,6 +35,12 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
         {
             if (IsApplied)
                 return;
+
+            if (!IsPrepared)
+            {
+                OriginalTrampoline = Dobby.Prepare(Target, Detour);
+                IsPrepared = true;
+            }
 
             Dobby.Commit(Target);
             IsApplied = true;
@@ -49,7 +57,11 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
 
         public T GenerateTrampoline<T>() where T : Delegate
         {
-            OriginalTrampoline = Dobby.Prepare(Target, Detour);
+            if (!IsPrepared)
+            {
+                OriginalTrampoline = Dobby.Prepare(Target, Detour);
+                IsPrepared = true;
+            }
 
             return Marshal.GetDelegateForFunctionPointer<T>(OriginalTrampoline);
         }

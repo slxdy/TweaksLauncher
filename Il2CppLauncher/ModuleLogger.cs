@@ -1,4 +1,5 @@
 ﻿using EasyNetLog;
+using System.Diagnostics;
 
 namespace Il2CppLauncher;
 
@@ -26,5 +27,20 @@ internal class ModuleLogger(string moduleName, string? moduleColor = null)
     public void Log(object? obj, string? baseColor = null)
     {
         Log(obj?.ToString(), baseColor);
+    }
+
+    public void LogProcess(Process process)
+    {
+        process.OutputDataReceived += OnProcessLog;
+        process.ErrorDataReceived += OnProcessLog;
+    }
+
+    private void OnProcessLog(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Data))
+            return;
+
+        var msg = sender is Process process ? $"[<color=yellow>{process.ProcessName}</color>] {e.Data}" : e.Data;
+        Log(msg);
     }
 }

@@ -30,7 +30,7 @@ internal unsafe static class ModuleSpoofer
         inited = true;
 
         ourHandle = NativeLibrary.GetMainProgramHandle();
-        currentPID = Process.GetCurrentProcess().Id;
+        currentPID = Environment.ProcessId;
         fakeExeHandle = NativeLibrary.Load(fakeExePath);
         dotnetDir = Path.GetFullPath(GetModuleName(NativeLibrary.Load("coreclr")) + "/../../../..") + Path.DirectorySeparatorChar;
         baseDir = AppDomain.CurrentDomain.BaseDirectory;

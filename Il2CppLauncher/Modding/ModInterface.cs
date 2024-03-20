@@ -13,7 +13,6 @@ internal abstract class ModInterface
     }
 
     public abstract void Initialize();
-    public abstract void Dispose();
 }
 
 internal class ModInterface<T> : ModInterface where T : IMod
@@ -21,10 +20,5 @@ internal class ModInterface<T> : ModInterface where T : IMod
     public override void Initialize()
     {
         T.Initialize();
-    }
-
-    public override void Dispose()
-    {
-        T.Dispose();
     }
 }

@@ -4,6 +4,7 @@ namespace Il2CppLauncher;
 
 internal class LauncherContext
 {
+    public required string GameName { get; init; }
     public required string GameDirectory { get; init; }
     public required string GameDataDirectory { get; init; }
     public required string GameExePath { get; init; }
@@ -16,8 +17,17 @@ internal class LauncherContext
 
     internal static LauncherContext? Read(string gameDirectory)
     {
-        if (!Directory.Exists(gameDirectory))
+        if (File.Exists(gameDirectory))
+        {
+            var dir = Path.GetDirectoryName(gameDirectory);
+            if (dir == null)
+                return null;
+
+            gameDirectory = dir;
+        }
+        else if (!Directory.Exists(gameDirectory))
             return null;
+
 
         gameDirectory = Path.GetFullPath(gameDirectory);
 
@@ -48,13 +58,14 @@ internal class LauncherContext
         if (!Version.TryParse(FileVersionInfo.GetVersionInfo(unityPlayer).FileVersion, out var unityVersion))
             return null;
 
-        var launcherDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, gameName);
+        var launcherDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Games", gameName);
 
         var modsDir = Path.Combine(launcherDir, "Mods");
         Directory.CreateDirectory(modsDir);
 
         return new()
         {
+            GameName = gameName,
             GameDirectory = gameDirectory,
             GameDataDirectory = dataDir,
             GameExePath = exe,

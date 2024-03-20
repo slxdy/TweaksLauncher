@@ -4,13 +4,6 @@ namespace Il2CppLauncher;
 
 internal unsafe static partial class Dobby
 {
-    //private static readonly string libPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dobby_x64.dll");
-
-    //static Dobby()
-    //{
-    //    NativeLibrary.Load(libPath);
-    //}
-
     [LibraryImport("dobby_x64", EntryPoint = "DobbyPrepare")]
     private static partial int Prepare(nint target, nint detour, nint* original);
 
@@ -55,6 +48,7 @@ internal unsafe static partial class Dobby
                 return;
 
             Destroy(Target);
+            Original = Marshal.GetDelegateForFunctionPointer<T>(Target);
             Target = 0;
         }
     }

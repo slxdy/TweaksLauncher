@@ -5,3 +5,4 @@ Module32First
 Module32Next
 Module32FirstW
 Module32NextW
+GetModuleHandle
