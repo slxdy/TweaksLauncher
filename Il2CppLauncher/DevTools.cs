@@ -44,7 +44,8 @@ internal static class DevTools
             mod.TryBuild(outputDir);
         }
 
-        Dotnet("build-server", "shutdown");
+        if (mods.Count != 0)
+            Dotnet("build-server", "shutdown");
     }
 
     public static bool CreateMod()
