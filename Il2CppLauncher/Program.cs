@@ -58,6 +58,8 @@ internal unsafe static class Program
         logger.Log($"To run a game manually, run in the console:");
         logger.Log($"\"{currentExePath}\" \"Path/To/Game/Directory\"", "green");
 
+        Console.ReadKey();
+
         return 0;
     }
 
