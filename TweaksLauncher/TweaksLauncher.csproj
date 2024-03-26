@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>AnyCPU</Platforms>
+		<OutDir>../output/$(Configuration)/</OutDir>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="EasyNetLog" Version="2.1.4" />
+		<PackageReference Include="Il2CppInterop.Generator" Version="1.4.5" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="all" />
+		<PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.0.7.2" />
+		<PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.5" />
+		<PackageReference Include="Il2CppInterop.Runtime" Version="1.4.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TweaksLauncher.Mod\TweaksLauncher.Mod.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="CopyToOutput/**">
+			<TargetPath>%(Filename)%(Extension)</TargetPath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="CopyToOutput\" />
+		<Folder Include="Resources\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+</Project>

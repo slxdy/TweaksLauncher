@@ -1,11 +1,11 @@
 # W.I.P.
 This project is still in development.
 
-# Il2CppLauncher
+# TweaksLauncher
 A lightweight Unity Il2Cpp mod launcher.
 
 ## How it works
-Il2CppLauncher is a game launcher, meaning it does NOT inject itself into the game, but rather starts it manually through `UnityPlayer.dll`.
+TweaksLauncher is a game launcher, meaning it does NOT inject itself into the game, but rather starts it manually through `UnityPlayer.dll`.
 Mods can interact with the game through the generated proxy assemblies from [Il2CppInterop](https://github.com/BepInEx/Il2CppInterop), just like with any other known Il2Cpp mod loaders.
 
 ## Credits
