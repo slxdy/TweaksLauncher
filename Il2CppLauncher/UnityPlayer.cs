@@ -11,8 +11,8 @@ internal static partial class UnityPlayer
 {
     [NotNull] private static Dobby.Patch<Il2CppInitSig>? il2cppInit = null;
     [NotNull] private static Dobby.Patch<Il2CppRuntimeInvokeSig>? il2cppRuntimeInvoke = null;
-
-    private static nint activateSceneChangedPtr;
+    private static nint activeSceneChangedMethodPtr;
+    private static bool initSceneLoaded;
 
     private static readonly ModuleLogger logger = new("UnityPlayer");
 
@@ -36,10 +36,18 @@ internal static partial class UnityPlayer
 
     private unsafe static nint OnIl2CppRuntimeInvoke(nint method, nint obj, nint param, ref nint exc)
     {
-        if (method == activateSceneChangedPtr)
+        if (method == activeSceneChangedMethodPtr)
         {
-            il2cppRuntimeInvoke.Dispose();
-            ModLoader.InitMods();
+            if (!initSceneLoaded)
+            {
+                initSceneLoaded = true;
+                ModHandler.InitMods();
+            }
+            else
+            {
+                il2cppRuntimeInvoke.Dispose();
+                ModHandler.FirstSceneLoaded();
+            }
         }
 
         return il2cppRuntimeInvoke.Original(method, obj, param, ref exc);
@@ -54,18 +62,9 @@ internal static partial class UnityPlayer
         var result = il2cppInit.Original(domainName);
 
         var type = IL2CPP.GetIl2CppClass("UnityEngine.CoreModule.dll", "UnityEngine.SceneManagement", "SceneManager");
-        if (type == default)
-        {
-            type = IL2CPP.GetIl2CppClass("UnityEngine.dll", "UnityEngine.SceneManagement", "SceneManager");
-            if (type == default)
-                throw new Exception("UnityEngine module bad format.");
-        }
+        activeSceneChangedMethodPtr = IL2CPP.GetIl2CppMethod(type, false, "Internal_ActiveSceneChanged", "System.Void", "UnityEngine.SceneManagement.Scene", "UnityEngine.SceneManagement.Scene");
 
-        activateSceneChangedPtr = IL2CPP.GetIl2CppMethod(type, false, "Internal_ActiveSceneChanged", "System.Void", "UnityEngine.SceneManagement.Scene", "UnityEngine.SceneManagement.Scene");
-        if (activateSceneChangedPtr == 0)
-            throw new Exception("UnityEngine module bad format. Method for init not found.");
-
-        ModLoader.Init();
+        ModHandler.Init();
 
         return result;
     }

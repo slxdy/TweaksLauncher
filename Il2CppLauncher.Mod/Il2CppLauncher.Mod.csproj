@@ -8,13 +8,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>Il2CppLauncher</_Parameter1>
-		</AssemblyAttribute>
+		<PackageReference Include="HarmonyX" Version="2.12.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Il2CppInterop.Runtime" Version="1.4.5" />
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Il2CppLauncher</_Parameter1>
+		</AssemblyAttribute>
 	</ItemGroup>
 
 </Project>

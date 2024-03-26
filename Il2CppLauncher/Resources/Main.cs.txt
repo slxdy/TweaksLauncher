@@ -5,7 +5,7 @@ using Il2CppLauncher;
 public class Main : IMod
 {
     // Register hooks and events in this function
-    public static void Initialize()
+    public static void Initialize(ModInstance mod)
     {
         ModLogger.Log("Hello World!");
     }

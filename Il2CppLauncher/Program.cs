@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using MonoMod.RuntimeDetour;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Il2CppLauncher;
@@ -7,6 +8,8 @@ internal unsafe static class Program
 {
     private static readonly ModuleLogger logger = new("Il2CppLauncher");
 
+    public static string ExePath { get; private set; } = Environment.ProcessPath!;
+
     [NotNull]
     internal static LauncherContext? Context { get; private set; }
 
@@ -14,9 +17,7 @@ internal unsafe static class Program
     {
         Console.Title = "Il2CppLauncher";
 
-        var currentExePath = Process.GetCurrentProcess().MainModule?.FileName;
-        if (currentExePath == null)
-            return -1;
+        CrashHandler.Init();
 
         if (args.Length >= 1)
         {
@@ -53,10 +54,10 @@ internal unsafe static class Program
         logger.Log("To launch Steam games through the mod loader, right click on your game in the Steam library, ");
         logger.Log("go to <color=green>Properties -> General -> Launch Options</color>.");
         logger.Log("Set the launch options to:");
-        logger.Log($"\"{currentExePath}\" %command%", "green");
+        logger.Log($"\"{ExePath}\" %command%", "green");
         logger.Log();
         logger.Log($"To run a game manually, run in the console:");
-        logger.Log($"\"{currentExePath}\" \"Path/To/Game/Directory\"", "green");
+        logger.Log($"\"{ExePath}\" \"Path/To/Game/Directory\"", "green");
 
         Console.ReadKey();
 
@@ -83,6 +84,9 @@ internal unsafe static class Program
         ProxyGenerator.Generate();
 
         DevTools.BuildProjectsForCurrentGame();
+
+        // Gotta do this before hiding modules.
+        DetourContext.GetDefaultFactory();
 
         Directory.SetCurrentDirectory(Context.GameDirectory);
         ModuleSpoofer.Spoof(Context.GameExePath);

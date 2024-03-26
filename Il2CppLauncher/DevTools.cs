@@ -1,4 +1,5 @@
-﻿using Il2CppLauncher.Models;
+﻿using Il2CppLauncher.Modding;
+using Il2CppLauncher.Models;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -10,10 +11,7 @@ internal static class DevTools
     private const string projectConfigFileName = "Il2CppLauncher.ModConfig.json";
 
     private static ModuleLogger logger = new("Dev Tools");
-    private static string templateDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModTemplate");
     private static string devDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dev");
-    private static string csprojTemplate = Path.Combine(templateDir, "Project.csproj");
-    private static string classTemplate = Path.Combine(templateDir, "Main.cs");
 
     public static List<ModProject> GetProjectsForGame(string gameName)
     {
@@ -25,7 +23,7 @@ internal static class DevTools
         foreach (var dir in Directory.EnumerateDirectories(devDir))
         {
             var mod = ModProject.TryGet(dir);
-            if (mod == null || !gameName.Equals(mod.Config.GameName, StringComparison.OrdinalIgnoreCase))
+            if (mod == null || (!string.IsNullOrEmpty(mod.Config.GameName) && !gameName.Equals(mod.Config.GameName, StringComparison.OrdinalIgnoreCase)))
                 continue;
 
             result.Add(mod);
@@ -40,34 +38,34 @@ internal static class DevTools
 
         foreach (var mod in mods)
         {
-            var outputDir = Path.Combine(Program.Context.ModsDirectory, mod.Name);
+            var outputDir = Path.Combine(string.IsNullOrEmpty(mod.Config.GameName) ? ModHandler.GlobalModsDirectory : Program.Context.ModsDirectory, mod.Name);
             mod.TryBuild(outputDir);
         }
 
         if (mods.Count != 0)
-            Dotnet("build-server", "shutdown");
+            Dotnet(true, "build-server", "shutdown");
     }
 
     public static bool CreateMod()
     {
         logger.Log("Tool for creating Il2CppLauncher mods.");
-        logger.Log("Enter the path to the game you wish to mod:");
-        var path = Console.ReadLine();
-        if (path == null)
-            return false;
+        logger.Log("Enter the path to the game you wish to mod. Leave the field empty if you wish to make a global mod:");
+        var path = Console.ReadLine()?.Trim(' ', '"');
+        var isGlobal = string.IsNullOrEmpty(path);
 
-        path = path.Trim(' ', '"');
-
-        if (!Program.InitContext(path))
+        if (!isGlobal)
         {
-            logger.Log("There is no valid Unity game located at the given path.", "red");
-            return false;
-        }
+            if (!Program.InitContext(path!))
+            {
+                logger.Log("There is no valid Unity game located at the given path.", "red");
+                return false;
+            }
 
-        if (!ProxyGenerator.Generate())
-        {
-            logger.Log("Could not create a mod project because proxy generation failed.", "red");
-            return false;
+            if (!ProxyGenerator.Generate())
+            {
+                logger.Log("Could not create a mod project because proxy generation failed.", "red");
+                return false;
+            }
         }
 
         string? name = null;
@@ -92,7 +90,7 @@ internal static class DevTools
         var solutionDir = Path.Combine(devDir, name);
         var solutionPath = Path.Combine(solutionDir, name + ".sln");
 
-        if (Directory.Exists(solutionDir) && Directory.EnumerateFiles(solutionDir).Any())
+        if (Directory.Exists(solutionDir) && Directory.EnumerateFiles(solutionDir, "*.*", SearchOption.AllDirectories).Any())
         {
             logger.Log("A project with the same name already exists. Please remove it first before Retrying.", "red");
             return false;
@@ -103,31 +101,36 @@ internal static class DevTools
 
         var csprojReferences = new StringBuilder();
 
-        foreach (var asm in Directory.EnumerateFiles(Program.Context.ProxiesDirectory, "*.dll", SearchOption.AllDirectories))
+        if (!isGlobal)
         {
-            var asmName = Path.GetFileNameWithoutExtension(asm);
-            if (asmName.StartsWith('_'))
-                continue;
+            foreach (var asm in Directory.EnumerateFiles(Program.Context.ProxiesDirectory, "*.dll"))
+            {
+                var asmName = Path.GetFileNameWithoutExtension(asm);
+                if (asmName.StartsWith('_'))
+                    continue;
 
-            var relPath = Path.GetRelativePath(projPath, asm);
+                var relPath = Path.GetRelativePath(projPath, asm);
 
-            csprojReferences.AppendLine($"        <Reference Include=\"{asmName}\" HintPath=\"{relPath}\" Private=\"False\" />");
+                csprojReferences.AppendLine($"        <Reference Include=\"{asmName}\" HintPath=\"{relPath}\" Private=\"False\" />");
+            }
         }
 
         var csprojPath = Path.Combine(projPath, name + ".csproj");
         var classPath = Path.Combine(projPath, "Main.cs");
 
-        var csprojContent = File.ReadAllText(csprojTemplate).Replace("        <!--proxyReferences-->", csprojReferences.ToString());
-        var classContent = File.ReadAllText(classTemplate).Replace("//namespace", $"namespace {name};");
+        var csprojContent = Resources.Project_csproj.Replace("        <!--proxyReferences-->", csprojReferences.ToString());
+        var classContent = Resources.Main_cs.Replace("//namespace", $"namespace {name};");
 
         File.WriteAllText(csprojPath, csprojContent);
         File.WriteAllText(classPath, classContent);
 
-        if (!Dotnet("new", "sln", "-o", solutionDir) || !Dotnet("sln", solutionPath, "add", csprojPath))
+        if (!Dotnet(false, "new", "sln", "-o", solutionDir) || !Dotnet(false, "sln", solutionPath, "add", csprojPath))
         {
             Directory.Delete(solutionDir, true);
             return false;
         }
+
+
 
         logger.Log();
 
@@ -135,7 +138,7 @@ internal static class DevTools
 
         var config = new ModConfig()
         {
-            GameName = Program.Context.GameName,
+            GameName = isGlobal ? null : Program.Context.GameName,
             DefaultBuildConfig = "Debug",
             ModCsprojPath = Path.GetRelativePath(solutionDir, csprojPath)
         };
@@ -151,7 +154,7 @@ internal static class DevTools
         return true;
     }
 
-    private static bool Dotnet(params string[] arguments)
+    private static bool Dotnet(bool silent, params string[] arguments)
     {
         using var proc = new Process();
         proc.StartInfo.FileName = "dotnet";
@@ -162,11 +165,19 @@ internal static class DevTools
         proc.StartInfo.RedirectStandardOutput = true;
         proc.StartInfo.RedirectStandardError = true;
 
-        logger.LogProcess(proc);
+        if (!silent)
+        {
+            logger.LogProcess(proc);
+        }
 
         proc.Start();
-        proc.BeginOutputReadLine();
-        proc.BeginErrorReadLine();
+
+        if (!silent)
+        {
+            proc.BeginOutputReadLine();
+            proc.BeginErrorReadLine();
+        }
+
         proc.WaitForExit();
         return proc.ExitCode == 0;
     }
@@ -190,7 +201,7 @@ internal static class DevTools
         {
             var buildConfig = Config.DefaultBuildConfig ?? "Debug";
 
-            if (!Dotnet("build", CsprojPath, "-c", buildConfig, "-o", outputDir))
+            if (!Dotnet(false, "build", CsprojPath, "-v", "q", "-c", buildConfig, "-o", outputDir))
             {
                 logger.Log($"Failed to build project at '{CsprojPath}'. Ignoring.", "yellow");
                 return false;

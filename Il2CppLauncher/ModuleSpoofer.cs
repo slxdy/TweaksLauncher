@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -204,7 +203,9 @@ internal unsafe static class ModuleSpoofer
     {
         return name.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase)
             || name.StartsWith(dotnetDir, StringComparison.OrdinalIgnoreCase)
-            || name.EndsWith("\\Microsoft.Extensions.DotNetDeltaApplier.dll", StringComparison.OrdinalIgnoreCase);
+            || name.EndsWith(Path.DirectorySeparatorChar + "Microsoft.Extensions.DotNetDeltaApplier.dll", StringComparison.OrdinalIgnoreCase)
+            || name.EndsWith(Path.DirectorySeparatorChar + "Microsoft.VisualStudio.Debugger.Runtime.NetCoreApp.dll", StringComparison.OrdinalIgnoreCase)
+            || name.EndsWith(Path.DirectorySeparatorChar + "Microsoft.VisualStudio.Debugger.Runtime.Impl.dll", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetModuleName(nint handle)

@@ -1,14 +1,18 @@
-﻿using Il2CppLauncher.Modding.Il2CppInteropImpl;
+﻿using Il2CppInterop.HarmonySupport;
+using Il2CppInterop.Runtime.Startup;
+using Il2CppLauncher.Modding.Il2CppInteropImpl;
 using System.Reflection;
 
 namespace Il2CppLauncher.Modding;
 
-internal static class ModLoader
+internal static class ModHandler
 {
-    private static ModuleLogger logger = new("Mod Loader");
+    private static ModuleLogger logger = new("Mod Handler");
     private static bool inited;
     private static bool modsInited;
     private static List<LoadedMod> loadedMods = [];
+
+    public static string GlobalModsDirectory { get; private set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GlobalMods");
 
     public static void Init()
     {
@@ -20,11 +24,30 @@ internal static class ModLoader
         logger.Log("Initializing");
 
         ProxyResolver.Init();
-        Il2CppInteropImplementation.InitRuntime();
+
+        Il2CppInteropRuntime.Create(new()
+        {
+            UnityVersion = Program.Context.UnityVersion,
+            DetourProvider = new DobbyDetourProvider()
+        })
+            .AddHarmonySupport()
+            .Start();
+
+        UnityTools.Init();
 
         ModLogger.onLog += HandleLog;
 
-        LoadModsFromPath();
+        Directory.CreateDirectory(GlobalModsDirectory);
+        LoadModsFromPath(GlobalModsDirectory);
+        LoadModsFromPath(Program.Context.ModsDirectory);
+    }
+
+    public static void FirstSceneLoaded()
+    {
+        foreach (var mod in loadedMods)
+            mod.InitUnitySingletons();
+
+        UnityEvents.InvokeFirstSceneLoad();
     }
 
     public static void InitMods()
@@ -34,31 +57,34 @@ internal static class ModLoader
 
         modsInited = true;
 
-        ForEachIMod(x => x.Initialize());
-    }
-
-    private static void ForEachIMod(Action<ModInterface> action)
-    {
         foreach (var mod in loadedMods)
         {
             foreach (var iMod in mod.ModInterfaces)
             {
-                action(iMod);
+                try
+                {
+                    iMod.Initialize(mod.ModInstance);
+                }
+                catch (Exception ex)
+                {
+                    logger.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", "red");
+                    logger.Log(ex, "red");
+                }
             }
         }
     }
 
-    private static void LoadModsFromPath()
+    private static void LoadModsFromPath(string modsDir)
     {
-        if (!Directory.Exists(Program.Context.ModsDirectory))
+        if (!Directory.Exists(modsDir))
             return;
 
-        foreach (var dll in Directory.EnumerateFiles(Program.Context.ModsDirectory, "*.dll"))
+        foreach (var dll in Directory.EnumerateFiles(modsDir, "*.dll"))
         {
             TryLoadMod(dll);
         }
 
-        foreach (var modDir in Directory.EnumerateDirectories(Program.Context.ModsDirectory))
+        foreach (var modDir in Directory.EnumerateDirectories(modsDir))
         {
             var dirName = Path.GetFileName(modDir);
             var modPath = Path.Combine(modDir, dirName + ".dll");
@@ -120,23 +146,13 @@ internal static class ModLoader
             return null;
         }
 
-        var modLogger = new ModuleLogger(name, "green");
-
-        var mod = new LoadedMod()
-        {
-            Name = name,
-            Logger = modLogger,
-            ModAssembly = modAssembly,
-            ModPath = path,
-            ModInterfaces = modInterfaces.AsReadOnly()
-        };
+        var mod = new LoadedMod(name, path, modAssembly, modInterfaces.AsReadOnly());
         loadedMods.Add(mod);
 
         logger.Log($"Mod loaded: <color=green>{mod}</color>");
 
         if (modsInited)
-            foreach (var iMod in mod.ModInterfaces)
-                iMod.Initialize();
+            mod.Init();
 
         return mod;
     }
