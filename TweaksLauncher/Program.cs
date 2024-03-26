@@ -1,5 +1,4 @@
 ﻿using MonoMod.RuntimeDetour;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TweaksLauncher;

@@ -1,7 +1,7 @@
 ﻿using Il2CppInterop.HarmonySupport;
 using Il2CppInterop.Runtime.Startup;
-using TweaksLauncher.Modding.Il2CppInteropImpl;
 using System.Reflection;
+using TweaksLauncher.Modding.Il2CppInteropImpl;
 
 namespace TweaksLauncher.Modding;
 

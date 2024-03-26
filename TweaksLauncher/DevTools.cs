@@ -1,8 +1,8 @@
-﻿using TweaksLauncher.Modding;
-using TweaksLauncher.Models;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using TweaksLauncher.Modding;
+using TweaksLauncher.Models;
 
 namespace TweaksLauncher;
 
