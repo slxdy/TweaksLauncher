@@ -28,7 +28,7 @@ internal static class ProxyResolver
             return null;
         }
 
-        var proxyPath = Path.Combine(Program.Context.ProxiesDirectory, name.Name + ".dll");
+        var proxyPath = Path.Combine(Launcher.Context.ProxiesDirectory, name.Name + ".dll");
         if (!File.Exists(proxyPath))
             return null;
 

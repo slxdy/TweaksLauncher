@@ -14,6 +14,8 @@ internal static class UnityTools
     [NotNull]
     private static MethodInfo? addComponent1 = null;
 
+    public static MethodInfo? Internal_ActiveSceneChanged { get; private set; }
+
     public static Type? MonoBehaviour { get; private set; }
 
     public static void Init()
@@ -28,6 +30,8 @@ internal static class UnityTools
         gameObject = coreModule.GetType("UnityEngine.GameObject");
         addComponent1 = gameObject?.GetMethod("AddComponent", 1, []);
         dontDestroyOnLoad = coreModule.GetType("UnityEngine.Object")?.GetMethod("DontDestroyOnLoad");
+
+        Internal_ActiveSceneChanged = coreModule.GetType("UnityEngine.SceneManagement.SceneManager")?.GetMethod("Internal_ActiveSceneChanged");
 
         MonoBehaviour = coreModule?.GetType("UnityEngine.MonoBehaviour");
     }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 using System.Text.Json;
 using TweaksLauncher.Modding;
@@ -10,8 +11,8 @@ internal static class DevTools
 {
     private const string projectConfigFileName = "TweaksLauncher.ModConfig.json";
 
-    private static ModuleLogger logger = new("Dev Tools");
-    private static string devDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dev");
+    private static readonly ModuleLogger logger = new("Dev Tools");
+    private static readonly string devDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dev");
 
     public static List<ModProject> GetProjectsForGame(string gameName)
     {
@@ -34,11 +35,11 @@ internal static class DevTools
 
     public static void BuildProjectsForCurrentGame()
     {
-        var mods = GetProjectsForGame(Program.Context.GameName);
+        var mods = GetProjectsForGame(Launcher.Context.GameName);
 
         foreach (var mod in mods)
         {
-            var outputDir = Path.Combine(string.IsNullOrEmpty(mod.Config.GameName) ? ModHandler.GlobalModsDirectory : Program.Context.ModsDirectory, mod.Name);
+            var outputDir = Path.Combine(string.IsNullOrEmpty(mod.Config.GameName) ? ModHandler.GlobalModsDirectory : Launcher.Context.ModsDirectory, mod.Name);
             mod.TryBuild(outputDir);
         }
 
@@ -55,15 +56,15 @@ internal static class DevTools
 
         if (!isGlobal)
         {
-            if (!Program.InitContext(path!))
+            if (!Launcher.InitContext(path!))
             {
-                logger.Log("There is no valid Unity game located at the given path.", "red");
+                logger.Log("There is no valid Unity game located at the given path.", Color.Red);
                 return false;
             }
 
             if (!ProxyGenerator.Generate())
             {
-                logger.Log("Could not create a mod project because proxy generation failed.", "red");
+                logger.Log("Could not create a mod project because proxy generation failed.", Color.Red);
                 return false;
             }
         }
@@ -79,7 +80,7 @@ internal static class DevTools
             var invalidChars = Path.GetInvalidFileNameChars();
             if (possibleName.Any(x => x == ' ' || invalidChars.Contains(x)))
             {
-                logger.Log("The name contains illegal characters. Please try again.", "red");
+                logger.Log("The name contains illegal characters. Please try again.", Color.Red);
                 continue;
             }
 
@@ -92,7 +93,7 @@ internal static class DevTools
 
         if (Directory.Exists(solutionDir) && Directory.EnumerateFiles(solutionDir, "*.*", SearchOption.AllDirectories).Any())
         {
-            logger.Log("A project with the same name already exists. Please remove it first before Retrying.", "red");
+            logger.Log("A project with the same name already exists. Please remove it first before Retrying.", Color.Red);
             return false;
         }
 
@@ -103,7 +104,7 @@ internal static class DevTools
 
         if (!isGlobal)
         {
-            foreach (var asm in Directory.EnumerateFiles(Program.Context.ProxiesDirectory, "*.dll"))
+            foreach (var asm in Directory.EnumerateFiles(Launcher.Context.ProxiesDirectory, "*.dll"))
             {
                 var asmName = Path.GetFileNameWithoutExtension(asm);
                 if (asmName.StartsWith('_'))
@@ -138,7 +139,7 @@ internal static class DevTools
 
         var config = new ModConfig()
         {
-            GameName = isGlobal ? null : Program.Context.GameName,
+            GameName = isGlobal ? null : Launcher.Context.GameName,
             DefaultBuildConfig = "Debug",
             ModCsprojPath = Path.GetRelativePath(solutionDir, csprojPath)
         };
@@ -146,7 +147,7 @@ internal static class DevTools
         var jsonOptions = new JsonSerializerOptions() { WriteIndented = true };
         File.WriteAllText(configPath, JsonSerializer.Serialize(config, jsonOptions));
 
-        logger.Log($"Project '{name}' has been created.", "green");
+        logger.Log($"Project '{name}' has been created.", Color.Green);
         logger.Log($"You can find it at '{solutionDir}'");
 
         Process.Start("explorer", ["/select,", solutionPath]);
@@ -203,7 +204,7 @@ internal static class DevTools
 
             if (!Dotnet(false, "build", CsprojPath, "-v", "q", "-c", buildConfig, "-o", outputDir))
             {
-                logger.Log($"Failed to build project at '{CsprojPath}'. Ignoring.", "yellow");
+                logger.Log($"Failed to build project at '{CsprojPath}'. Ignoring.", Color.Yellow);
                 return false;
             }
 
@@ -238,7 +239,7 @@ internal static class DevTools
 
             if (config == null || config.ModCsprojPath == null)
             {
-                logger.Log($"{projectConfigFileName} from project '{directory}' is invalid.", "yellow");
+                logger.Log($"{projectConfigFileName} from project '{directory}' is invalid.", Color.Yellow);
                 return null;
             }
 

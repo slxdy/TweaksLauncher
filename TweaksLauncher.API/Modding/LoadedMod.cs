@@ -2,6 +2,7 @@
 using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Reflection;
 
 namespace TweaksLauncher.Modding;
@@ -21,7 +22,7 @@ internal class LoadedMod
         ModPath = modPath;
         ModAssembly = modAssembly;
 
-        Logger = new ModuleLogger(name, "green");
+        Logger = new ModuleLogger(name, Color.Green);
 
         // Automatically register Il2Cpp types
         foreach (var type in modAssembly.GetTypes())
@@ -33,7 +34,7 @@ internal class LoadedMod
         }
 
         // Automatically register all Harmony patches
-        var har = Harmony.CreateAndPatchAll(modAssembly);
+        var har = Harmony.CreateAndPatchAll(modAssembly, modAssembly.FullName);
 
         ModInterfaces = modInterfaces;
         ModInstance = new(har);
@@ -58,8 +59,6 @@ internal class LoadedMod
 
     public override string ToString()
     {
-        // TODO: Add mod version
-        var relPath = Path.GetRelativePath(Program.Context.LauncherGameDirectory, ModPath);
-        return $"[ {Name}, {relPath} ]";
+        return $"[ {Name}, v{ModAssembly.GetName().Version ?? new Version()} ]";
     }
 }

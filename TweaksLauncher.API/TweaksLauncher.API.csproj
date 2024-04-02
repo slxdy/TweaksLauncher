@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+        <NoWarn>CA1416;CA1401;CA1869</NoWarn>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <OutDir>../output/$(Configuration)/libs/</OutDir>
+        <RootNamespace>TweaksLauncher</RootNamespace>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <AssemblyVersion>0.1</AssemblyVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="TweaksLauncher" />
+        <InternalsVisibleTo Include="TweaksLauncher.x86" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.1.0-pre-release.14" PrivateAssets="all" />
+        <PackageReference Include="Il2CppInterop.Generator" Version="1.4.6-ci.394" PrivateAssets="all" />
+        <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.6-ci.394" PrivateAssets="all" />
+        <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.6-ci.394" PrivateAssets="all" />
+        <PackageReference Include="HarmonyX" Version="2.12.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="all" />
+        <PackageReference Include="Pastel" Version="5.0.0" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content CopyToOutputDirectory="PreserveNewest" Include="Dobby/**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Resources\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Resources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

@@ -1,5 +1,6 @@
 ﻿using Il2CppInterop.HarmonySupport;
 using Il2CppInterop.Runtime.Startup;
+using System.Drawing;
 using System.Reflection;
 using TweaksLauncher.Modding.Il2CppInteropImpl;
 
@@ -7,10 +8,10 @@ namespace TweaksLauncher.Modding;
 
 internal static class ModHandler
 {
-    private static ModuleLogger logger = new("Mod Handler");
+    private static readonly ModuleLogger logger = new("Mod Handler");
     private static bool inited;
     private static bool modsInited;
-    private static List<LoadedMod> loadedMods = [];
+    private static readonly List<LoadedMod> loadedMods = [];
 
     public static string GlobalModsDirectory { get; private set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GlobalMods");
 
@@ -27,7 +28,7 @@ internal static class ModHandler
 
         Il2CppInteropRuntime.Create(new()
         {
-            UnityVersion = Program.Context.UnityVersion,
+            UnityVersion = Launcher.Context.UnityVersion,
             DetourProvider = new DobbyDetourProvider()
         })
             .AddHarmonySupport()
@@ -35,11 +36,9 @@ internal static class ModHandler
 
         UnityTools.Init();
 
-        ModLogger.onLog += HandleLog;
-
         Directory.CreateDirectory(GlobalModsDirectory);
         LoadModsFromPath(GlobalModsDirectory);
-        LoadModsFromPath(Program.Context.ModsDirectory);
+        LoadModsFromPath(Launcher.Context.ModsDirectory);
     }
 
     public static void FirstSceneLoaded()
@@ -67,8 +66,8 @@ internal static class ModHandler
                 }
                 catch (Exception ex)
                 {
-                    logger.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", "red");
-                    logger.Log(ex, "red");
+                    logger.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", Color.Red);
+                    logger.Log(ex, Color.Red);
                 }
             }
         }
@@ -96,7 +95,7 @@ internal static class ModHandler
     {
         if (!File.Exists(path))
         {
-            logger.Log($"Could not find mod at: {path}", "red");
+            logger.Log($"Could not find mod at: {path}", Color.Red);
             return null;
         }
 
@@ -104,8 +103,8 @@ internal static class ModHandler
 
         if (loadedMods.Exists(x => path.Equals(x.ModPath, StringComparison.OrdinalIgnoreCase)))
         {
-            logger.Log($"Could not load mod from: {path}", "red");
-            logger.Log($"This mod is already loaded.", "red");
+            logger.Log($"Could not load mod from: {path}", Color.Red);
+            logger.Log($"This mod is already loaded.", Color.Red);
             return null;
         }
 
@@ -116,16 +115,16 @@ internal static class ModHandler
         }
         catch
         {
-            logger.Log($"Could not load mod from: {path}", "red");
-            logger.Log($"Mod is not a .net assembly.", "red");
+            logger.Log($"Could not load mod from: {path}", Color.Red);
+            logger.Log($"Mod is not a .net assembly.", Color.Red);
             return null;
         }
 
         var name = modAssembly.GetName().Name;
         if (name == null)
         {
-            logger.Log($"Could not load mod from: {path}", "red");
-            logger.Log($"Mod's assembly does not have a name.", "red");
+            logger.Log($"Could not load mod from: {path}", Color.Red);
+            logger.Log($"Mod's assembly does not have a name.", Color.Red);
             return null;
         }
 
@@ -141,15 +140,15 @@ internal static class ModHandler
 
         if (modInterfaces.Count == 0)
         {
-            logger.Log($"Could not load mod from: {path}", "red");
-            logger.Log($"Mod does not implement any IMod interfaces.", "red");
+            logger.Log($"Could not load mod from: {path}", Color.Red);
+            logger.Log($"Mod does not implement any IMod interfaces.", Color.Red);
             return null;
         }
 
         var mod = new LoadedMod(name, path, modAssembly, modInterfaces.AsReadOnly());
         loadedMods.Add(mod);
 
-        logger.Log($"Mod loaded: <color=green>{mod}</color>");
+        logger.Log($"Mod loaded: {mod}", Color.LightGreen);
 
         if (modsInited)
             mod.Init();
@@ -157,7 +156,7 @@ internal static class ModHandler
         return mod;
     }
 
-    private static void HandleLog(object? message, string? baseColor, Assembly modAssembly)
+    internal static void HandleLog(object? message, Color baseColor, Assembly modAssembly)
     {
         var mod = loadedMods.Find(x => x.ModAssembly == modAssembly);
         if (mod == null)

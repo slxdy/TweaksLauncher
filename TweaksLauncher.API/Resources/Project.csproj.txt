@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="TweaksLauncher.API" HintPath="../../../libs/TweaksLauncher.API.dll" Private="False" />
+        <Reference Include="Il2CppInterop.Runtime" HintPath="../../../libs/Il2CppInterop.Runtime.dll" Private="False" />
+        <Reference Include="0Harmony" HintPath="../../../libs/0Harmony.dll" Private="False" />
+
+        <!--proxyReferences-->
+    </ItemGroup>
+
+</Project>

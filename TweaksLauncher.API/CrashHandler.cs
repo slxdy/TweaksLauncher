@@ -1,8 +1,10 @@
-﻿namespace TweaksLauncher;
+﻿using System.Drawing;
+
+namespace TweaksLauncher;
 
 internal static class CrashHandler
 {
-    private static ModuleLogger logger = new("Crash Handler");
+    private static readonly ModuleLogger logger = new("Crash Handler");
 
     private static bool inited;
 
@@ -18,7 +20,7 @@ internal static class CrashHandler
 
     private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        logger.Log(e.ExceptionObject, "red");
+        logger.Log(e.ExceptionObject, Color.Red);
 
         if (e.IsTerminating)
             Console.ReadKey();
