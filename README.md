@@ -18,7 +18,7 @@ Mods can interact with the game through the generated proxy assemblies from [Il2
 Depending on the mod, the installation instructions may vary. However, most zipped mods should be extracted to the launcher's folder. **Make sure to extract the entire zip, including all folders within it. Do NOT create any extra folders if prompted.** If the mod is a single DLL, follow instructions provided by the developer.
 
 ## Developing Mods
-TweaksLauncher provides useful features for developers, such as auto-build and debugging (through your preferred IDE).<br>
+TweaksLauncher provides useful features for developers, such as auto-build and debugging.<br>
 To get started, refer to the [Developer Guide](Guides/DeveloperGuide.md).
 
 ## Compilation Guide
