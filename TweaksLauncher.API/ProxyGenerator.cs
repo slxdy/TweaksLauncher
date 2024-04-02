@@ -1,6 +1,5 @@
 ﻿using Cpp2IL.Core;
 using Cpp2IL.Core.Api;
-using Cpp2IL.Core.InstructionSets;
 using Cpp2IL.Core.OutputFormats;
 using Cpp2IL.Core.ProcessingLayers;
 using Il2CppInterop.Generator;
@@ -43,8 +42,7 @@ internal static class ProxyGenerator
             if (unityLibsPath == null)
                 return false;
 
-            InstructionSetRegistry.RegisterInstructionSet<X86InstructionSet>(Environment.Is64BitProcess ? DefaultInstructionSets.X86_64 : DefaultInstructionSets.X86_32);
-            LibCpp2IlBinaryRegistry.RegisterBuiltInBinarySupport();
+            Cpp2IlApi.Init();
 
             Cpp2IlApi.InitializeLibCpp2Il(Launcher.Context.GameAssemblyPath, Launcher.Context.GlobalMetadataPath,
                 new((ushort)Launcher.Context.UnityVersion.Major, (ushort)Launcher.Context.UnityVersion.Minor, (ushort)Launcher.Context.UnityVersion.Build), false);
@@ -62,8 +60,8 @@ internal static class ProxyGenerator
             Cpp2IlApi.CurrentAppContext = null;
 
             var cecilDummies = new List<AssemblyDefinition>(asmResolverDummies.Count);
-            var cecilResolver = new DefaultAssemblyResolver();
-            using var memoryStream = new MemoryStream(10000); //10 kb initial capacity
+            var cecilResolver = new CecilTools.RegistryAssemblyResolver();
+            using var memoryStream = new MemoryStream(100000); //100 kb initial capacity
             foreach (var dummy in asmResolverDummies)
             {
                 memoryStream.Seek(0, SeekOrigin.Begin);
@@ -78,7 +76,7 @@ internal static class ProxyGenerator
                     AssemblyResolver = cecilResolver
                 });
 
-                cecilResolver.RegisterAssembly(cecilDummy);
+                cecilResolver.Register(cecilDummy);
 
                 cecilDummies.Add(cecilDummy);
             }
@@ -89,7 +87,8 @@ internal static class ProxyGenerator
                 Source = cecilDummies,
                 OutputDir = Launcher.Context.ProxiesDirectory,
                 UnityBaseLibsDir = unityLibsPath,
-                Parallel = true
+                Parallel = true,
+                NoXrefCache = true
             });
 
             interopGenerator.AddInteropAssemblyGenerator();
@@ -124,13 +123,13 @@ internal static class ProxyGenerator
             return versionDir;
 
         using var http = new HttpClient();
-        var resp = await http.GetAsync($"https://github.com/LavaGang/Unity-Runtime-Libraries/raw/master/{versionString}.zip", HttpCompletionOption.ResponseHeadersRead);
+        var resp = await http.GetAsync($"https://github.com/LavaGang/Unity-Runtime-Libraries/raw/master/{versionString}.zip", HttpCompletionOption.ResponseContentRead);
         if (!resp.IsSuccessStatusCode)
             return null;
 
         using var content = new MemoryStream(await resp.Content.ReadAsByteArrayAsync());
 
-        var zip = new ZipArchive(content, ZipArchiveMode.Read);
+        using var zip = new ZipArchive(content, ZipArchiveMode.Read);
 
         zip.ExtractToDirectory(versionDir);
         return versionDir;
