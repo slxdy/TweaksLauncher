@@ -8,7 +8,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <OutDir>../output/$(Configuration)/libs/</OutDir>
+        <OutDir>../output/$(Configuration)/TweaksLauncher/libs/</OutDir>
         <RootNamespace>TweaksLauncher</RootNamespace>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <AssemblyVersion>0.1</AssemblyVersion>
