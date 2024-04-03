@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="GameFinder.StoreHandlers.Steam" Version="4.2.0" PrivateAssets="all" />
         <PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.1.0-pre-release.14" ExcludeAssets="native" PrivateAssets="all" />
         <PackageReference Include="Il2CppInterop.Generator" Version="1.4.6-ci.394" PrivateAssets="all" />
         <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.6-ci.394" PrivateAssets="all" />

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using TweaksLauncher.Utility;
 
 namespace TweaksLauncher;
 
@@ -19,11 +20,19 @@ internal class LauncherContext
     {
         if (File.Exists(gameDirectory))
         {
-            var dir = Path.GetDirectoryName(gameDirectory);
-            if (dir == null)
-                return null;
+            var steamPath = SteamTools.GetPathFromShortcut(gameDirectory);
+            if (steamPath != null)
+            {
+                gameDirectory = steamPath;
+            }
+            else
+            {
+                var dir = Path.GetDirectoryName(gameDirectory);
+                if (dir == null)
+                    return null;
 
-            gameDirectory = dir;
+                gameDirectory = dir;
+            }
         }
         else if (!Directory.Exists(gameDirectory))
             return null;

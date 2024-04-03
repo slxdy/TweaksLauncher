@@ -32,28 +32,16 @@ internal unsafe static class Launcher
             if (gamePath.Equals("createmod", StringComparison.OrdinalIgnoreCase))
                 return DevTools.CreateMod() ? 0 : -1;
 
-            if (File.Exists(gamePath))
+            if (InitContext(gamePath))
             {
-                gamePath = Path.GetDirectoryName(gamePath);
-            }
+                var gameArgs = new string[args.Length - 1];
+                Array.Copy(args, 1, gameArgs, 0, gameArgs.Length);
 
-            if (Directory.Exists(gamePath))
-            {
-                if (InitContext(gamePath))
-                {
-                    var gameArgs = new string[args.Length - 1];
-                    Array.Copy(args, 1, gameArgs, 0, gameArgs.Length);
-
-                    return StartGame(gameArgs);
-                }
-                else
-                {
-                    logger.Log($"No valid Unity game found at: '{gamePath}'", Color.Red);
-                }
+                return StartGame(gameArgs);
             }
             else
             {
-                logger.Log($"Could not find the game directory at: '{gamePath}'", Color.Red);
+                logger.Log($"No valid Unity game found at: '{gamePath}'", Color.Red);
             }
         }
 
