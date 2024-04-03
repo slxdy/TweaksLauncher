@@ -54,6 +54,37 @@ Sometimes we want to initialize our mod right when when the first game scene is 
 - Using the `UnityEvents::FirstSceneLoad` event
 - Through our own `MonoBehaviour` (a.k.a. Unity component)
 
+## Releasing Your Mod
+When releasing a mod, it's important to make it easy for users to install.
+
+First, we need to understand the basic folder structure of TweaksLauncher.
+- Each mod should have its own folder, for example: `MyMod/MyMod.dll`
+- The mod folder must have the same name as the dll
+- All universal mods go to the `GlobalMods` folder. Example path: `TweaksLauncher/GlobalMods/MyMod/MyMod.dll`
+- All game-specific mods need to go to the `Games/Your Game Name/Mods` folder. Example path: `TweaksLauncher/Games/BloonsTD6/Mods/MyMod/MyMod.dll`
+
+Knowing this, the best practice is to zip your mod with the same folder structure before releasing it. This will allow the users to easily unzip the mod into the right directory.
+
+Example of a good zip structure:
+```
+Games
+| BloonsTD6
+  | Mods
+    | MyMod
+      | MyMod.dll
+      | ExampleDependency.dll
+```
+
+TweaksLauncher also support standalone mods, which don't have their own directory, but only a single dll. This isn't recommended, but may look better for smaller mods.
+
+Example of a good zip structure for standalone mods:
+```
+Games
+| BloonsTD6
+  | Mods
+    | MyStandaloneMod.dll
+```
+
 ## Events
 The `UnityEvents` class provides common Unity events that can be used by mods. Currently, there is only one event, but more might get added in the future.
 
@@ -144,34 +175,3 @@ You can easily debug your mod through your IDE. This will allow you to start the
 ![Project Properties](image.png)
 
 - You're all set! You can now start debugging your mod by simply clicking the `Start` button at the top of your IDE.
-
-## Releasing Your Mod
-When releasing a mod, it's important to make it easy for users to install.
-
-First, we need to understand the basic folder structure of TweaksLauncher.
-- Each mod should have its own folder, for example: `MyMod/MyMod.dll`
-- The mod folder must have the same name as the dll
-- All universal mods go to the `GlobalMods` folder. Example path: `TweaksLauncher/GlobalMods/MyMod/MyMod.dll`
-- All game-specific mods need to go to the `Games/Your Game Name/Mods` folder. Example path: `TweaksLauncher/Games/BloonsTD6/Mods/MyMod/MyMod.dll`
-
-Knowing this, the best practice is to zip your mod with the same folder structure before releasing it. This will allow the users to easily unzip the mod into the right directory.
-
-Example of a good zip structure:
-```
-Games
-| BloonsTD6
-  | Mods
-    | MyMod
-      | MyMod.dll
-      | ExampleDependency.dll
-```
-
-TweaksLauncher also support standalone mods, which don't have their own directory, but only a single dll. This isn't recommended, but may look better for smaller mods.
-
-Example of a good zip structure for standalone mods:
-```
-Games
-| BloonsTD6
-  | Mods
-    | MyStandaloneMod.dll
-```
