@@ -50,8 +50,7 @@ internal unsafe static class Launcher
         logger.Log("Set the launch options to:");
         logger.Log($"\"{ExePath}\" %command%", Color.Green);
         logger.Log();
-        logger.Log($"To run a game manually, run in the console:");
-        logger.Log($"\"{ExePath}\" \"Path/To/Game/Directory\"", Color.Green);
+        logger.Log($"To run a game manually, drag your game shortcut/executable file to the launcher's executable.");
 
         Console.ReadKey();
 

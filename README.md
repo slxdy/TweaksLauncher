@@ -29,4 +29,5 @@ The project should be compiled using Visual Studio. Make sure to build the entir
 [Cpp2IL](https://github.com/SamboyCoding/Cpp2IL) - Work-in-progress tool to reverse unity's IL2CPP toolchain.<br>
 [BepInEx/Dobby](https://github.com/BepInEx/Dobby) - Fork of jmpews/Dobby with stability edits for Windows<br>
 [HarmonyX](https://github.com/BepInEx/HarmonyX) - Harmony built on top of MonoMod.RuntimeDetours with additional features<br>
-[Pastel](https://github.com/silkfire/Pastel) - A tiny utility class that makes colorizing console output a breeze.
+[Pastel](https://github.com/silkfire/Pastel) - A tiny utility class that makes colorizing console output a breeze.<br>
+[GameFinder.StoreHandlers.Steam](https://github.com/erri120/GameFinder) - Library for finding games installed with Steam.
