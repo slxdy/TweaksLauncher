@@ -9,6 +9,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
         <DebugType>embedded</DebugType>
         <Platforms>AnyCPU;x86</Platforms>
         <OutDir>../output/$(Configuration)/TweaksLauncher/</OutDir>
