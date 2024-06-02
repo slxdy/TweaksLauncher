@@ -1,7 +1,6 @@
 ﻿using MonoMod.RuntimeDetour;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace TweaksLauncher;
 
@@ -73,12 +72,6 @@ internal unsafe static class Launcher
 
         logger.Log($"Game Exe: '{Context.GameExePath}'");
         logger.Log($"Unity Version: '{Context.UnityVersion}'");
-
-        if (!NativeLibrary.TryLoad(Context.GameExePath, out _))
-        {
-            logger.Log("Failed to load the original game exe module. Make sure you're running TweaksLauncher for the right architecture (x64 or x86).", Color.Red);
-            return -1;
-        }
 
         ProxyGenerator.Generate();
 

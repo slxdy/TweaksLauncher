@@ -202,7 +202,7 @@ internal static class DevTools
         {
             var buildConfig = Config.DefaultBuildConfig ?? "Debug";
 
-            if (!Dotnet(false, "build", CsprojPath, "-v", "q", "-c", buildConfig, "-o", outputDir))
+            if (!Dotnet(false, "build", CsprojPath, "-v", "q", "-c", buildConfig, $"-p:OutDir=\"{outputDir}\""))
             {
                 logger.Log($"Failed to build project at '{CsprojPath}'. Ignoring.", Color.Yellow);
                 return false;
