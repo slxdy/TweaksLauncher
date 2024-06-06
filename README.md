@@ -1,4 +1,8 @@
-# TweaksLauncher
+<div>
+  <img src="https://github.com/slxdy/TweaksLauncher/assets/61495410/7a4c686b-d092-4f6c-9aef-64b3421457f1" width="160">
+  <h1>TweaksLauncher</h1>
+</div>
+
 A lightweight Unity mod launcher for IL2CPP games built for windows x64 and x86.
 
 ## How it works
