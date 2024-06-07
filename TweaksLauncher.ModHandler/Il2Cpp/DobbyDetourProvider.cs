@@ -1,7 +1,9 @@
-﻿using Il2CppInterop.Runtime.Injection;
+﻿#if IL2CPP
+
+using Il2CppInterop.Runtime.Injection;
 using System.Runtime.InteropServices;
 
-namespace TweaksLauncher.Modding.Il2CppInteropImpl;
+namespace TweaksLauncher.Il2Cpp;
 
 internal unsafe class DobbyDetourProvider : IDetourProvider
 {
@@ -10,26 +12,19 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
         return new DobbyDetour(original, target);
     }
 
-    public class DobbyDetour : IDetour
+    public class DobbyDetour(nint target, Delegate detour) : IDetour
     {
-        private readonly Delegate detourObj;
+        public Delegate ManagedDetour { get; private set; } = detour;
 
-        public nint Target { get; private set; }
+        public nint Target { get; private set; } = target;
 
-        public nint Detour { get; private set; }
+        public nint Detour { get; private set; } = Marshal.GetFunctionPointerForDelegate(detour);
 
         public nint OriginalTrampoline { get; private set; }
 
         public bool IsApplied { get; private set; }
 
         public bool IsPrepared { get; private set; }
-
-        public DobbyDetour(nint target, Delegate detour)
-        {
-            detourObj = detour;
-            Target = target;
-            Detour = Marshal.GetFunctionPointerForDelegate(detour);
-        }
 
         public void Apply()
         {
@@ -67,3 +62,5 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
         }
     }
 }
+
+#endif

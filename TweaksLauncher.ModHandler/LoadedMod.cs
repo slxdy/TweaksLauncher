@@ -2,27 +2,39 @@
 using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Reflection;
 
-namespace TweaksLauncher.Modding;
+namespace TweaksLauncher;
 
-internal class LoadedMod
+public class LoadedMod
 {
+    /// <summary>
+    /// Name of the mod.
+    /// </summary>
     public string Name { get; private set; }
+
+    /// <summary>
+    /// Path to the assembly of the mod.
+    /// </summary>
     public string ModPath { get; private set; }
-    public ModuleLogger Logger { get; private set; }
+
+    /// <summary>
+    /// The loaded .net assembly of the mod.
+    /// </summary>
     public Assembly ModAssembly { get; private set; }
-    public ReadOnlyCollection<ModInterface> ModInterfaces { get; private set; }
-    public ModInstance ModInstance { get; private set; }
+
+    /// <summary>
+    /// Harmony instance created for the mod.
+    /// </summary>
+    public Harmony Harmony { get; private set; }
+
+    internal ReadOnlyCollection<ModInterface> ModInterfaces { get; private set; }
 
     internal LoadedMod(string name, string modPath, Assembly modAssembly, ReadOnlyCollection<ModInterface> modInterfaces)
     {
         Name = name;
         ModPath = modPath;
         ModAssembly = modAssembly;
-
-        Logger = new ModuleLogger(name, Color.Green);
 
         // Automatically register Il2Cpp types
         foreach (var type in modAssembly.GetTypes())
@@ -34,16 +46,15 @@ internal class LoadedMod
         }
 
         // Automatically register all Harmony patches
-        var har = Harmony.CreateAndPatchAll(modAssembly, modAssembly.FullName);
+        Harmony = Harmony.CreateAndPatchAll(modAssembly, modAssembly.FullName);
 
         ModInterfaces = modInterfaces;
-        ModInstance = new(har);
     }
 
     public void Init()
     {
         foreach (var iMod in ModInterfaces)
-            iMod.Initialize(ModInstance);
+            iMod.Initialize(this);
     }
 
     public void InitUnitySingletons()

@@ -7,11 +7,6 @@ namespace TweaksLauncher;
 /// </summary>
 public unsafe static partial class Dobby
 {
-    static Dobby()
-    {
-        NativeLibrary.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs", "Dobby", Environment.Is64BitProcess ? "win-x64" : "win-x86", "dobby.dll"));
-    }
-
     [LibraryImport("dobby", EntryPoint = "DobbyPrepare")]
     public static partial int Prepare(nint target, nint detour, nint* original);
 

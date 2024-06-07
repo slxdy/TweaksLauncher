@@ -9,5 +9,5 @@ public interface IMod
     /// Runs early, when Unity has initialized, but before the first game scene is loaded
     /// </summary>
     /// <param name="mod">The returned mod instance</param>
-    public static abstract void Initialize(ModInstance mod);
+    public static abstract void Initialize(LoadedMod mod);
 }

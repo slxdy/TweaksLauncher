@@ -1,0 +1,2 @@
+SetStdHandle
+UNICODE_STRING

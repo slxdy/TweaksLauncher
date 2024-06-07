@@ -1,4 +1,4 @@
-﻿namespace TweaksLauncher.Modding;
+﻿namespace TweaksLauncher;
 
 internal abstract class ModInterface
 {
@@ -14,14 +14,14 @@ internal abstract class ModInterface
         return (ModInterface)Activator.CreateInstance(resultType)!;
     }
 
-    public abstract void Initialize(ModInstance mod);
+    public abstract void Initialize(LoadedMod mod);
 }
 
 internal class ModInterface<T> : ModInterface where T : IMod
 {
     public override Type InterfaceType => typeof(T);
 
-    public override void Initialize(ModInstance mod)
+    public override void Initialize(LoadedMod mod)
     {
         T.Initialize(mod);
     }

@@ -6,22 +6,64 @@ using Il2CppInterop.Generator;
 using Il2CppInterop.Generator.Runners;
 using LibCpp2IL;
 using Mono.Cecil;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO.Compression;
-using TweaksLauncher.Utility;
+using System.Reflection;
 
 namespace TweaksLauncher;
 
-internal static class ProxyGenerator
+internal static class Il2CppHandler
 {
-    private static readonly string targetUnityDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Unity");
-    private static readonly ModuleLogger logger = new("Proxy Generator");
+    private static readonly string unityVersionsDir = Path.Combine(Program.baseDir, "Unity");
 
-    public unsafe static bool Generate()
+    [NotNull] private static Dobby.Patch<Il2CppInitSig>? il2cppInit = null;
+
+    internal static int Start()
     {
-        var gameAssemblySize = new FileInfo(Launcher.Context.GameAssemblyPath).Length;
-        var gameAssemblyInfo = Path.Combine(Launcher.Context.LauncherGameDirectory, "gameassembly.info");
-        if (File.Exists(gameAssemblyInfo) && Directory.Exists(Launcher.Context.ProxiesDirectory))
+        if (!GenerateProxies())
+            return 10;
+
+        il2cppInit = Dobby.CreatePatch<Il2CppInitSig>(Program.runtimePath, "il2cpp_init", OnIl2CppInit);
+
+        return GameManager.Start();
+    }
+
+    private static void LoadModHandler()
+    {
+        var handlerPath = Path.Combine(Program.baseDir, "bin", "IL2CPP", "TweaksLauncher.dll");
+        if (!File.Exists(handlerPath))
+        {
+            Logger.Log($"Could not find the mod handler. Please reinstall TweaksLauncher.", Color.Red);
+            return;
+        }
+
+        var modHandler = Assembly.LoadFrom(handlerPath);
+
+        modHandler.GetType("TweaksLauncher.ModHandler", true)!
+            .InvokeMember("Start", BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Static, null, null,
+            [new Action<string?, Color, string?, Color>(Logger.Log), Program.baseDir, Program.gameName, Program.gamePath]);
+    }
+
+    private static nint OnIl2CppInit(nint domainName)
+    {
+        il2cppInit.Destroy();
+
+        Logger.Log("Creating Il2Cpp Domain");
+
+        var result = il2cppInit.Original(domainName);
+
+        LoadModHandler();
+
+        return result;
+    }
+
+    private unsafe static bool GenerateProxies()
+    {
+        var gameAssemblySize = new FileInfo(Program.runtimePath).Length;
+        var gameAssemblyInfo = Path.Combine(Program.launcherGamePath, "gameassembly.info");
+        var proxiesDir = Path.Combine(Program.launcherGamePath, "Proxies");
+        if (File.Exists(gameAssemblyInfo) && Directory.Exists(proxiesDir))
         {
             try
             {
@@ -29,23 +71,34 @@ internal static class ProxyGenerator
                 var expectedSize = new BinaryReader(infoReader).ReadInt64();
                 if (gameAssemblySize == expectedSize)
                     return true;
-
-                Directory.Delete(Launcher.Context.ProxiesDirectory, true);
             }
             catch { }
+
+            Directory.Delete(proxiesDir, true);
         }
 
-        logger.Log($"Generating proxy assemblies, this might take a minute...");
+        Logger.Log($"Generating IL2CPP proxy assemblies, this might take a minute...");
+
+        var metadataPath = Path.Combine(Program.gameDataDir, "il2cpp_data", "Metadata", "global-metadata.dat");
+        if (!File.Exists(metadataPath))
+        {
+            Logger.Log($"Could not find the IL2CPP metadata. The engine might be modified", Color.Red);
+            return false;
+        }
+
         try
         {
-            var unityLibsPath = GetUnityAssemblies(Launcher.Context.UnityVersion);
+            var unityLibsPath = GetUnityAssemblies(Program.unityVersion);
             if (unityLibsPath == null)
+            {
+                Logger.Log($"Failed to download Unity assemblies.", Color.Red);
                 return false;
+            }
 
             Cpp2IlApi.Init();
 
-            Cpp2IlApi.InitializeLibCpp2Il(Launcher.Context.GameAssemblyPath, Launcher.Context.GlobalMetadataPath,
-                new((ushort)Launcher.Context.UnityVersion.Major, (ushort)Launcher.Context.UnityVersion.Minor, (ushort)Launcher.Context.UnityVersion.Build), false);
+            Cpp2IlApi.InitializeLibCpp2Il(Program.runtimePath, metadataPath,
+                new((ushort)Program.unityVersion.Major, (ushort)Program.unityVersion.Minor, (ushort)Program.unityVersion.Build), false);
 
             var procLayers = new List<Cpp2IlProcessingLayer> { new AttributeInjectorProcessingLayer() };
             foreach (var layer in procLayers)
@@ -60,7 +113,7 @@ internal static class ProxyGenerator
             Cpp2IlApi.CurrentAppContext = null;
 
             var cecilDummies = new List<AssemblyDefinition>(asmResolverDummies.Count);
-            var cecilResolver = new CecilTools.RegistryAssemblyResolver();
+            var cecilResolver = new RegistryAssemblyResolver();
             using var memoryStream = new MemoryStream(100000); //100 kb initial capacity
             foreach (var dummy in asmResolverDummies)
             {
@@ -83,9 +136,9 @@ internal static class ProxyGenerator
 
             using var interopGenerator = Il2CppInteropGenerator.Create(new()
             {
-                GameAssemblyPath = Launcher.Context.GameAssemblyPath,
+                GameAssemblyPath = Program.runtimePath,
                 Source = cecilDummies,
-                OutputDir = Launcher.Context.ProxiesDirectory,
+                OutputDir = proxiesDir,
                 UnityBaseLibsDir = unityLibsPath,
                 Parallel = true,
                 NoXrefCache = true
@@ -102,8 +155,8 @@ internal static class ProxyGenerator
         }
         catch (Exception ex)
         {
-            logger.Log("Failed to generate proxy assemblies.", Color.Red);
-            logger.Log(ex, Color.Red);
+            Logger.Log("Failed to generate proxy assemblies.", Color.Red);
+            Logger.Log(ex.ToString(), Color.Red);
             return false;
         }
 
@@ -118,7 +171,7 @@ internal static class ProxyGenerator
     private static async Task<string?> GetUnityAssembliesAsync(Version unityVersion)
     {
         var versionString = $"{unityVersion.Major}.{unityVersion.Minor}.{unityVersion.Build}";
-        var versionDir = Path.Combine(targetUnityDirectory, versionString);
+        var versionDir = Path.Combine(unityVersionsDir, versionString);
         if (Directory.Exists(versionDir))
             return versionDir;
 
@@ -134,4 +187,14 @@ internal static class ProxyGenerator
         zip.ExtractToDirectory(versionDir);
         return versionDir;
     }
+
+    public class RegistryAssemblyResolver : DefaultAssemblyResolver
+    {
+        public void Register(AssemblyDefinition assembly)
+        {
+            RegisterAssembly(assembly);
+        }
+    }
+
+    internal delegate nint Il2CppInitSig(nint domainName);
 }

@@ -12,24 +12,36 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <DebugType>embedded</DebugType>
         <Platforms>AnyCPU;x86</Platforms>
-        <OutDir>../output/$(Configuration)/TweaksLauncher/</OutDir>
-        <AssemblyName Condition="'$(Platform)' == 'x86'">$(MSBuildProjectName).x86</AssemblyName>
+        <OutDir>../output/$(Configuration)/bin/$(RuntimeIdentifier)</OutDir>
         <AssemblyVersion>0.1</AssemblyVersion>
+        <RootNamespace>TweaksLauncher</RootNamespace>
+        <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Platform)' == 'AnyCPU'">
         <MSBuild Projects="$(MSBuildProjectFile)" Properties="Platform=x86" />
     </Target>
 
-    <ItemGroup Condition="'$(Platform)' == 'AnyCPU'">
-        <None Include="CopyToOutput/**">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Mono.Cecil" Version="0.11.5" />
+        <PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.1.0-pre-release.14" />
+        <PackageReference Include="Il2CppInterop.Generator" Version="1.4.6-ci.394" />
+        <PackageReference Include="Pastel" Version="5.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Native/$(RuntimeIdentifier)/**">
             <TargetPath>%(Filename)%(Extension)</TargetPath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TweaksLauncher.API\TweaksLauncher.API.csproj" Private="False" PrivateAssets="all" />
+      <Content Include="Assets\icon.ico" />
     </ItemGroup>
 
 </Project>
