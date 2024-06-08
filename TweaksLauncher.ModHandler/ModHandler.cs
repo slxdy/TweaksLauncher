@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
-
 
 #if IL2CPP
 using TweaksLauncher.Il2Cpp;
@@ -10,14 +12,23 @@ using Il2CppInterop.HarmonySupport;
 using Il2CppInterop.Runtime.Startup;
 #endif
 
+#if MONO
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+#endif
+
 namespace TweaksLauncher;
 
 public unsafe static class ModHandler
 {
+#if !MONO
     private static Action<string?, Color, string?, Color> logFunc = null!;
+#endif
+
     private static bool initSceneLoaded;
     private static Harmony harmony = null!;
     private static bool modsInited;
+    private static bool firstSceneLoaded;
     private static readonly List<LoadedMod> loadedMods = [];
 
     public static string BaseDirectory { get; private set; } = null!;
@@ -32,26 +43,36 @@ public unsafe static class ModHandler
     public static string ProxiesDirectory { get; private set; } = null!;
 #endif
 
-    internal static void Start(Action<string?, Color, string?, Color> logFunc, string baseDir, string gameName, string gameDir)
+    internal static void Start(string baseDir, string gameName, string gameDir
+#if !MONO
+        , Action<string?, Color, string?, Color> logFunc
+#endif
+        )
     {
+#if !MONO
         ModHandler.logFunc = logFunc;
+#endif
 
         Log("Initializing Mod Handler");
 
         var unityPlayerPath = Path.Combine(gameDir, "UnityPlayer.dll");
-        if (!Version.TryParse(FileVersionInfo.GetVersionInfo(unityPlayerPath).FileVersion, out var unityVersion))
+
+        try
+        {
+            UnityVersion = new Version(FileVersionInfo.GetVersionInfo(unityPlayerPath).FileVersion!);
+        }
+        catch
         {
             Log($"Could not find the Unity version.", Color.Red);
             return;
         }
 
-        UnityVersion = unityVersion;
         BaseDirectory = baseDir;
         GameName = gameName;
         GameDirectory = gameDir;
 
         GlobalModsDirectory = Path.Combine(baseDir, "GlobalMods");
-        LauncherGameDirectory = Path.Combine(baseDir, "Games", gameName);
+        LauncherGameDirectory = Path.Combine(Path.Combine(baseDir, "Games"), gameName);
         ModsDirectory = Path.Combine(LauncherGameDirectory, "Mods");
 
 #if IL2CPP
@@ -64,7 +85,7 @@ public unsafe static class ModHandler
 
         Il2CppInteropRuntime.Create(new()
         {
-            UnityVersion = unityVersion,
+            UnityVersion = UnityVersion,
             DetourProvider = new DobbyDetourProvider()
         })
             .AddHarmonySupport()
@@ -82,11 +103,23 @@ public unsafe static class ModHandler
 
     internal static void Log(string? message, Color baseColor = default, string? moduleName = null, Color moduleColor = default)
     {
+#if MONO
+        LogInternal(message, baseColor.ToArgb(), moduleName, moduleColor.ToArgb());
+#else
         logFunc(message, baseColor, moduleName, moduleColor);
+#endif
     }
+
+#if MONO
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    private static extern void LogInternal(string? message, int baseColor, string? moduleName, int moduleColor);
+#endif
 
     private static void OnInternalActiveSceneChanged()
     {
+        if (firstSceneLoaded)
+            return;
+
         if (!initSceneLoaded)
         {
             initSceneLoaded = true;
@@ -94,7 +127,7 @@ public unsafe static class ModHandler
         }
         else
         {
-            harmony.UnpatchSelf();
+            firstSceneLoaded = true;
             FirstSceneLoaded();
         }
     }
@@ -108,18 +141,7 @@ public unsafe static class ModHandler
 
         foreach (var mod in loadedMods)
         {
-            foreach (var iMod in mod.ModInterfaces)
-            {
-                try
-                {
-                    iMod.Initialize(mod);
-                }
-                catch (Exception ex)
-                {
-                    Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", Color.Red);
-                    Log(ex.ToString(), Color.Red);
-                }
-            }
+            mod.Init();
         }
     }
 
@@ -136,12 +158,12 @@ public unsafe static class ModHandler
         if (!Directory.Exists(modsDir))
             return;
 
-        foreach (var dll in Directory.EnumerateFiles(modsDir, "*.dll"))
+        foreach (var dll in Directory.GetFiles(modsDir, "*.dll"))
         {
             TryLoadMod(dll);
         }
 
-        foreach (var modDir in Directory.EnumerateDirectories(modsDir))
+        foreach (var modDir in Directory.GetDirectories(modsDir))
         {
             var dirName = Path.GetFileName(modDir);
             var modPath = Path.Combine(modDir, dirName + ".dll");
@@ -171,27 +193,40 @@ public unsafe static class ModHandler
         }
 
         Assembly modAssembly;
+        string? name;
         try
         {
             modAssembly = Assembly.LoadFrom(path);
+            name = modAssembly.GetName().Name;
+            if (name == null)
+            {
+                Log($"Could not load mod from: {path}", Color.Red);
+                Log($"Mod's assembly does not have a name.", Color.Red);
+                return null;
+            }
         }
         catch
         {
             Log($"Could not load mod from: {path}", Color.Red);
-            Log($"Mod is not a .net assembly.", Color.Red);
+            Log($"Invalid .net assembly.", Color.Red);
             return null;
         }
 
-        var name = modAssembly.GetName().Name;
-        if (name == null)
+        Type[] types;
+
+        try
+        {
+            types = modAssembly.GetTypes();
+        }
+        catch
         {
             Log($"Could not load mod from: {path}", Color.Red);
-            Log($"Mod's assembly does not have a name.", Color.Red);
+            Log($"Something went wrong while reading the assembly. The assembly might be targetting the wrong .net runtime version.", Color.Red);
             return null;
         }
 
         var modInterfaces = new List<ModInterface>();
-        foreach (var type in modAssembly.GetTypes())
+        foreach (var type in types)
         {
             var mi = ModInterface.GetFromType(type);
             if (mi == null)

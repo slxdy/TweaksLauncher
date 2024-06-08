@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net35</TargetFrameworks>
         <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
         <NoWarn>CA1416;CA1401;CA1869</NoWarn>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>TweaksLauncher</RootNamespace>
@@ -28,12 +27,14 @@
         <InternalsVisibleTo Include="TweaksLauncher.Game" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="$(DefineConstants.Contains(IL2CPP))">
         <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.6-ci.394" />
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.6-ci.394" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="HarmonyX" Version="2.12.0" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" />
-        <PackageReference Include="Mono.Cecil" Version="0.11.5" ExcludeAssets="runtime" />
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.1" />
     </ItemGroup>
 
 </Project>

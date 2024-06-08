@@ -1,4 +1,6 @@
-﻿namespace TweaksLauncher;
+﻿using System;
+
+namespace TweaksLauncher;
 
 /// <summary>
 /// Common Unity events that can be used in mods

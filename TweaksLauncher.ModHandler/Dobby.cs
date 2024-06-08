@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿#if NETCOREAPP
+using System;
+using System.Runtime.InteropServices;
 
 namespace TweaksLauncher;
 
@@ -95,3 +97,4 @@ public unsafe static partial class Dobby
         }
     }
 }
+#endif

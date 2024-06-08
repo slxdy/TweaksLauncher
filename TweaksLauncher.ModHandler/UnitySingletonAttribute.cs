@@ -1,4 +1,6 @@
-﻿namespace TweaksLauncher;
+﻿using System;
+
+namespace TweaksLauncher;
 
 /// <summary>
 /// Automatically loads a Unity component after the first game scene load

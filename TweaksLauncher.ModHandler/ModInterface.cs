@@ -1,4 +1,6 @@
-﻿namespace TweaksLauncher;
+﻿using System;
+
+namespace TweaksLauncher;
 
 internal abstract class ModInterface
 {
@@ -6,7 +8,7 @@ internal abstract class ModInterface
 
     public static ModInterface? GetFromType(Type type)
     {
-        if (!type.IsAssignableTo(typeof(IMod)))
+        if (!typeof(IMod).IsAssignableFrom(type))
             return null;
 
         var resultType = typeof(ModInterface<>).MakeGenericType(type);
@@ -23,6 +25,12 @@ internal class ModInterface<T> : ModInterface where T : IMod
 
     public override void Initialize(LoadedMod mod)
     {
+#if NETCOREAPP
         T.Initialize(mod);
+#else
+        InterfaceType.InvokeMember("Initialize",
+            System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+            null, null, [mod]);
+#endif
     }
 }

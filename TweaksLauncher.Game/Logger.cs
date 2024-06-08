@@ -54,7 +54,7 @@ internal static class Logger
 
         if (message != string.Empty)
         {
-            if (baseColor == default)
+            if (baseColor.A == 0)
                 baseColor = Color.LightCyan;
 
             message = message.Pastel(baseColor);
@@ -63,7 +63,7 @@ internal static class Logger
         var consoleLog = $"[{time.Pastel(Color.DarkGray)}]";
         if (moduleName != null)
         {
-            if (moduleColor == default)
+            if (moduleColor.A == 0)
                 moduleColor = Color.Magenta;
 
             consoleLog += $"[{moduleName.Pastel(moduleColor)}]";

@@ -1,6 +1,7 @@
 ﻿#if IL2CPP
 
 using Il2CppInterop.Runtime.Injection;
+using System;
 using System.Runtime.InteropServices;
 
 namespace TweaksLauncher.Il2Cpp;
@@ -37,16 +38,18 @@ internal unsafe class DobbyDetourProvider : IDetourProvider
                 IsPrepared = true;
             }
 
-            Dobby.Commit(Target);
+            _ = Dobby.Commit(Target);
             IsApplied = true;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
+            GC.SuppressFinalize(this);
+
             if (!IsApplied)
                 return;
 
-            Dobby.Destroy(Target);
+            _ = Dobby.Destroy(Target);
             IsApplied = false;
         }
 

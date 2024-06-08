@@ -5,7 +5,7 @@ namespace TweaksLauncher;
 
 internal static class Program
 {
-    internal static readonly string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..");
+    internal static readonly string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", ".."));
 
     internal static string runtimePath = null!;
     internal static string gamePath = null!;
@@ -116,6 +116,10 @@ internal static class Program
         {
             case RuntimeType.Il2Cpp:
                 return Il2CppHandler.Start();
+
+            case RuntimeType.Mono:
+            case RuntimeType.OldMono:
+                return MonoHandler.Start();
 
             default:
                 Logger.Log($"Game runtime not supported.", Color.Red);

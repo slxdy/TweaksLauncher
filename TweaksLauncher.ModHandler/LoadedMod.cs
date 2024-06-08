@@ -1,8 +1,15 @@
 ﻿using HarmonyLib;
+using System;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Reflection;
+
+
+
+#if IL2CPP
 using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes;
-using System.Collections.ObjectModel;
-using System.Reflection;
+#endif
 
 namespace TweaksLauncher;
 
@@ -36,6 +43,7 @@ public class LoadedMod
         ModPath = modPath;
         ModAssembly = modAssembly;
 
+#if IL2CPP
         // Automatically register Il2Cpp types
         foreach (var type in modAssembly.GetTypes())
         {
@@ -44,6 +52,7 @@ public class LoadedMod
                 ClassInjector.RegisterTypeInIl2Cpp(type);
             }
         }
+#endif
 
         // Automatically register all Harmony patches
         Harmony = Harmony.CreateAndPatchAll(modAssembly, modAssembly.FullName);
@@ -54,14 +63,28 @@ public class LoadedMod
     public void Init()
     {
         foreach (var iMod in ModInterfaces)
-            iMod.Initialize(this);
+        {
+            try
+            {
+                iMod.Initialize(this);
+            }
+            catch (MissingMethodException)
+            {
+                ModHandler.Log($"Mod interface doesn't implement an 'Initialize' method: '{iMod.InterfaceType.FullName}'", Color.Red);
+            }
+            catch (Exception ex)
+            {
+                ModHandler.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", Color.Red);
+                ModHandler.Log(ex.ToString(), Color.Red);
+            }
+        }
     }
 
     public void InitUnitySingletons()
     {
         foreach (var type in ModAssembly.GetTypes())
         {
-            if (type.GetCustomAttribute<UnitySingletonAttribute>() != null && type.IsAssignableTo(UnityTools.MonoBehaviour))
+            if (type.GetCustomAttributes(typeof(UnitySingletonAttribute), false).Length != 0 && UnityTools.MonoBehaviour.IsAssignableFrom(type))
             {
                 UnityTools.CreateComponentSingleton(type);
             }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using System.Reflection;
 
 namespace TweaksLauncher;
@@ -7,16 +7,13 @@ internal static class UnityTools
 {
     private static Assembly? coreModule = null;
 
-    [NotNull]
-    private static Type? gameObject = null;
-    [NotNull]
-    private static MethodInfo? dontDestroyOnLoad = null;
-    [NotNull]
-    private static MethodInfo? addComponent1 = null;
+    private static Type gameObject = null!;
+    private static MethodInfo dontDestroyOnLoad = null!;
+    private static MethodInfo addComponent1 = null!;
 
     public static MethodInfo? Internal_ActiveSceneChanged { get; private set; }
 
-    public static Type? MonoBehaviour { get; private set; }
+    public static Type MonoBehaviour { get; private set; } = null!;
 
     public static void Init()
     {
@@ -27,13 +24,13 @@ internal static class UnityTools
         if (coreModule == null)
             return;
 
-        gameObject = coreModule.GetType("UnityEngine.GameObject");
-        addComponent1 = gameObject?.GetMethod("AddComponent", 1, []);
-        dontDestroyOnLoad = coreModule.GetType("UnityEngine.Object")?.GetMethod("DontDestroyOnLoad");
+        gameObject = coreModule.GetType("UnityEngine.GameObject")!;
+        addComponent1 = gameObject?.GetMethod("AddComponent", [])!;
+        dontDestroyOnLoad = coreModule.GetType("UnityEngine.Object")?.GetMethod("DontDestroyOnLoad")!;
 
-        Internal_ActiveSceneChanged = coreModule.GetType("UnityEngine.SceneManagement.SceneManager")?.GetMethod("Internal_ActiveSceneChanged");
+        Internal_ActiveSceneChanged = coreModule.GetType("UnityEngine.SceneManagement.SceneManager")?.GetMethod("Internal_ActiveSceneChanged", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
-        MonoBehaviour = coreModule?.GetType("UnityEngine.MonoBehaviour");
+        MonoBehaviour = coreModule?.GetType("UnityEngine.MonoBehaviour")!;
     }
 
     public static object? CreateGameObject()

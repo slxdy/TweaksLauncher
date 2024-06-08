@@ -8,13 +8,13 @@ namespace TweaksLauncher;
 public unsafe static partial class Dobby
 {
     [LibraryImport("dobby", EntryPoint = "DobbyPrepare")]
-    public static partial int Prepare(nint target, nint detour, nint* original);
+    private static partial int Prepare(nint target, nint detour, nint* original);
 
     [LibraryImport("dobby", EntryPoint = "DobbyCommit")]
-    public static partial int Commit(nint target);
+    private static partial int Commit(nint target);
 
     [LibraryImport("dobby", EntryPoint = "DobbyDestroy")]
-    public static partial int Destroy(nint target);
+    private static partial int Destroy(nint target);
 
     public static nint Prepare(nint target, nint detour)
     {
