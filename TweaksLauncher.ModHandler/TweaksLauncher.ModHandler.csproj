@@ -30,11 +30,16 @@
     <ItemGroup Condition="$(DefineConstants.Contains(IL2CPP))">
         <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.6-ci.394" />
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.6-ci.394" />
-    </ItemGroup>
+		<PackageReference Include="Il2CppInterop.ReferenceLibs" Version="1.0.0" IncludeAssets="compile" PrivateAssets="all" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="HarmonyX" Version="2.12.0" />
-        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.1" />
+	<ItemGroup Condition="$(DefineConstants.Contains(MONO))">
+		<PackageReference Include="UnityEngine.Modules" Version="2018.1.0" IncludeAssets="compile" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="HarmonyX" Version="2.12.0" />
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.1" />
     </ItemGroup>
 
 </Project>

@@ -1,14 +1,13 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Reflection;
-
-
+using UnityEngine;
 
 #if IL2CPP
 using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime;
 #endif
 
 namespace TweaksLauncher;
@@ -70,12 +69,12 @@ public class LoadedMod
             }
             catch (MissingMethodException)
             {
-                ModHandler.Log($"Mod interface doesn't implement an 'Initialize' method: '{iMod.InterfaceType.FullName}'", Color.Red);
+                ModHandler.Log($"Mod interface doesn't implement an 'Initialize' method: '{iMod.InterfaceType.FullName}'", System.Drawing.Color.Red);
             }
             catch (Exception ex)
             {
-                ModHandler.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", Color.Red);
-                ModHandler.Log(ex.ToString(), Color.Red);
+                ModHandler.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", System.Drawing.Color.Red);
+                ModHandler.Log(ex.ToString(), System.Drawing.Color.Red);
             }
         }
     }
@@ -84,9 +83,15 @@ public class LoadedMod
     {
         foreach (var type in ModAssembly.GetTypes())
         {
-            if (type.GetCustomAttributes(typeof(UnitySingletonAttribute), false).Length != 0 && UnityTools.MonoBehaviour.IsAssignableFrom(type))
+            if (type.GetCustomAttributes(typeof(UnitySingletonAttribute), false).Length != 0 && typeof(MonoBehaviour).IsAssignableFrom(type))
             {
-                UnityTools.CreateComponentSingleton(type);
+                var obj = new GameObject();
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+#if IL2CPP
+                obj.AddComponent(Il2CppType.From(type));
+#else
+                obj.AddComponent(type);
+#endif
             }
         }
     }

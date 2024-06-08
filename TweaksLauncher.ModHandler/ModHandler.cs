@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using UnityEngine.SceneManagement;
+using System.Runtime.CompilerServices;
+
 
 #if IL2CPP
 using TweaksLauncher.Il2Cpp;
@@ -14,7 +17,6 @@ using Il2CppInterop.Runtime.Startup;
 
 #if MONO
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 #endif
 
 namespace TweaksLauncher;
@@ -92,13 +94,18 @@ public unsafe static class ModHandler
             .Start();
 #endif
 
-        UnityTools.Init();
-
         LoadModsFromPath(GlobalModsDirectory);
         LoadModsFromPath(ModsDirectory);
 
         harmony = new Harmony("TweaksLauncher.ModHandler");
-        harmony.Patch(UnityTools.Internal_ActiveSceneChanged, prefix: new(OnInternalActiveSceneChanged));
+        WatchSceneChange();
+    }
+
+    // Need a separate method to prevent Start() from trying to resolve SceneManager early
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void WatchSceneChange()
+    {
+        harmony.Patch(typeof(SceneManager).GetMethod("Internal_ActiveSceneChanged", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public), prefix: new(OnInternalActiveSceneChanged));
     }
 
     internal static void Log(string? message, Color baseColor = default, string? moduleName = null, Color moduleColor = default)
