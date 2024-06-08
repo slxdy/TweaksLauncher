@@ -19,6 +19,7 @@ internal class Il2CppEnumeratorWrapper : Il2CppSystem.Object
     }
 
     public Il2CppEnumeratorWrapper(IntPtr ptr) : base(ptr) { }
+
     public Il2CppEnumeratorWrapper(IEnumerator _enumerator) : base(ClassInjector.DerivedConstructorPointer<Il2CppEnumeratorWrapper>())
     {
         ClassInjector.DerivedConstructorBody(this);
