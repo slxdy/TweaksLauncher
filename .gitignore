@@ -455,3 +455,5 @@ $RECYCLE.BIN/
 
 # Debug options
 TweaksLauncher.Game/Properties/launchSettings.json
+
+[Oo]utput/

@@ -4,21 +4,22 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
         <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
-        <RuntimeIdentifier Condition="'$(Platform)' == 'AnyCPU'">win-x64</RuntimeIdentifier>
+        <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
         <RuntimeIdentifier Condition="'$(Platform)' == 'x86'">win-x86</RuntimeIdentifier>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <DebugType>embedded</DebugType>
-        <Platforms>AnyCPU;x86</Platforms>
-        <OutDir>../output/$(Configuration)/bin/$(RuntimeIdentifier)</OutDir>
+        <Platforms>x64;x86</Platforms>
+        <OutDir>../output/$(Configuration)/bin/$(Platform)</OutDir>
+		<PublishDir>../output/Published/bin/IL2CPP</PublishDir>
         <AssemblyVersion>0.1</AssemblyVersion>
         <RootNamespace>TweaksLauncher</RootNamespace>
         <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     </PropertyGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Platform)' == 'AnyCPU'">
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Platform)' == 'x64'">
         <MSBuild Projects="$(MSBuildProjectFile)" Properties="Platform=x86" />
     </Target>
 

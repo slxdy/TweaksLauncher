@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TweaksLauncher.App"
+             RequestedThemeVariant="Dark">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Dark" Accent="#7B4F9F" RegionColor="#2D1C3D" ErrorText="Yellow">
+					<ColorPaletteResources.BaseLow>#7B4F9F</ColorPaletteResources.BaseLow>
+					<ColorPaletteResources.BaseMediumLow>#4f3366</ColorPaletteResources.BaseMediumLow>
+                </ColorPaletteResources>
+                
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <Style Selector="Button,TextBox">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+    </Application.Styles>
+</Application>

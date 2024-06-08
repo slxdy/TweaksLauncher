@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TweaksLauncher.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:TweaksLauncher.Views"
+        mc:Ignorable="d"
+		Width="900" Height="600"
+		MinWidth="800" MinHeight="600"
+        x:Class="TweaksLauncher.Views.MainWindow"
+        Icon="/Assets/icon.ico"
+        Title="TweaksLauncher">
+	<views:InstallerView />
+	<Window.Background>
+		<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+			<GradientStop Offset="0.0" Color="#3D224B" />
+			<GradientStop Offset="0.5" Color="#2D1C3D" />
+			<GradientStop Offset="1.0" Color="#3C2149" />
+		</LinearGradientBrush>
+	</Window.Background>
+</Window>

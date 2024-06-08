@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained Condition="'$(PublishProtocol)' != ''">true</SelfContained>
+        <PublishTrimmed>true</PublishTrimmed>
+        <DebugType>embedded</DebugType>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <PublishDir>../output/Published</PublishDir>
+		<OutDir>../output/$(Configuration)</OutDir>
+        <ApplicationIcon>Assets/icon.ico</ApplicationIcon>
+        <AssemblyName>TweaksLauncher</AssemblyName>
+        <RootNamespace>TweaksLauncher</RootNamespace>
+        <Platforms>x64</Platforms>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+        <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Views\InstallerView.axaml.cs">
+            <DependentUpon>InstallerView.axaml</DependentUpon>
+        </Compile>
+    </ItemGroup>
+</Project>

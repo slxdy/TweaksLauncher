@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TweaksLauncher.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="TweaksLauncher.Views.InstallerView"
+             x:DataType="vm:InstallerViewModel"
+			 FontSize="25">
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:InstallerViewModel />
+  </Design.DataContext>
+
+	<Grid Margin="60" RowDefinitions="*, *, auto" HorizontalAlignment="Center">
+		<Image Grid.Row="0" Margin="10" Source="/Assets/icon.ico" MaxHeight="400" />
+		<StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<TextBlock HorizontalAlignment="Center">Installation Path</TextBlock>
+			<TextBox Margin="10" Width="700" Height="50" FontSize="20" VerticalContentAlignment="Center" TextAlignment="Center" />
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<TextBlock VerticalAlignment="Center">Create Dekstop Shortcut</TextBlock>
+				<LayoutTransformControl Margin="10">
+					<LayoutTransformControl.LayoutTransform>
+						<ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+					</LayoutTransformControl.LayoutTransform>
+					<CheckBox FontSize="25" VerticalAlignment="Center" />
+				</LayoutTransformControl>
+			</StackPanel>
+		</StackPanel>
+		<Button Grid.Row="2" Width="300" Height="70" FontSize="40" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Install</Button>
+	</Grid>
+</UserControl>

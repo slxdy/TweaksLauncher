@@ -6,21 +6,24 @@
         <NoWarn>CA1416;CA1401;CA1869</NoWarn>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>TweaksLauncher</RootNamespace>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <AssemblyVersion>0.1</AssemblyVersion>
         <AssemblyName>TweaksLauncher</AssemblyName>
+        <RootNamespace>TweaksLauncher</RootNamespace>
         <LangVersion>latest</LangVersion>
+        <Platforms>x64</Platforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
         <DefineConstants>MONO</DefineConstants>
         <OutDir>../output/$(Configuration)/bin/Mono</OutDir>
+		<PublishDir>../output/Published/bin/Mono</PublishDir>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' != 'net35'">
         <DefineConstants>IL2CPP</DefineConstants>
         <OutDir>../output/$(Configuration)/bin/IL2CPP</OutDir>
+		<PublishDir>../output/Published/bin/IL2CPP</PublishDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,16 +33,16 @@
     <ItemGroup Condition="$(DefineConstants.Contains(IL2CPP))">
         <PackageReference Include="Il2CppInterop.HarmonySupport" Version="1.4.6-ci.394" />
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.6-ci.394" />
-		<PackageReference Include="Il2CppInterop.ReferenceLibs" Version="1.0.0" IncludeAssets="compile" PrivateAssets="all" />
-	</ItemGroup>
+        <PackageReference Include="Il2CppInterop.ReferenceLibs" Version="1.0.0" IncludeAssets="compile" PrivateAssets="all" />
+    </ItemGroup>
 
-	<ItemGroup Condition="$(DefineConstants.Contains(MONO))">
-		<PackageReference Include="UnityEngine.Modules" Version="2018.1.0" IncludeAssets="compile" PrivateAssets="all" />
-	</ItemGroup>
+    <ItemGroup Condition="$(DefineConstants.Contains(MONO))">
+        <PackageReference Include="UnityEngine.Modules" Version="2018.1.0" IncludeAssets="compile" PrivateAssets="all" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="HarmonyX" Version="2.12.0" />
-		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.1" />
+    <ItemGroup>
+        <PackageReference Include="HarmonyX" Version="2.12.0" />
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.1" />
     </ItemGroup>
 
 </Project>
