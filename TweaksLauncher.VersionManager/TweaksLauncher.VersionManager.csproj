@@ -14,7 +14,7 @@
         <DebugType>embedded</DebugType>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-        <PublishDir>../output/Published</PublishDir>
+        <PublishDir>../output/Publish</PublishDir>
 		<OutDir>../output/$(Configuration)</OutDir>
         <ApplicationIcon>Assets/icon.ico</ApplicationIcon>
         <AssemblyName>TweaksLauncher</AssemblyName>

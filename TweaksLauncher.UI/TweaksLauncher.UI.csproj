@@ -10,7 +10,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <DebugType>embedded</DebugType>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-        <PublishDir>../output/Published/bin/UI</PublishDir>
+        <PublishDir>../output/Publish/bin/UI</PublishDir>
         <OutDir>../output/$(Configuration)/bin/UI</OutDir>
         <ApplicationIcon>Assets/icon.ico</ApplicationIcon>
         <RootNamespace>TweaksLauncher</RootNamespace>

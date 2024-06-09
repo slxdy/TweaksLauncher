@@ -12,18 +12,17 @@
         <RootNamespace>TweaksLauncher</RootNamespace>
         <LangVersion>latest</LangVersion>
         <Platforms>x64</Platforms>
+        <Configurations>Debug;Publish</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
         <DefineConstants>MONO</DefineConstants>
         <OutDir>../output/$(Configuration)/bin/Mono</OutDir>
-		<PublishDir>../output/Published/bin/Mono</PublishDir>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' != 'net35'">
         <DefineConstants>IL2CPP</DefineConstants>
         <OutDir>../output/$(Configuration)/bin/IL2CPP</OutDir>
-		<PublishDir>../output/Published/bin/IL2CPP</PublishDir>
     </PropertyGroup>
 
     <ItemGroup>
