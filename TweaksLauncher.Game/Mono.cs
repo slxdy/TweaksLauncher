@@ -44,7 +44,7 @@ internal static unsafe class Mono
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate nint mono_runtime_invoke_sig(nint method, nint obj, nint* args, nint* exception);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
     internal delegate nint mono_string_new_sig(nint domain, string value);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
