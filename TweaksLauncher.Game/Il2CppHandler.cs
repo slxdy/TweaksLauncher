@@ -42,7 +42,7 @@ internal static class Il2CppHandler
 
         modHandler.GetType("TweaksLauncher.ModHandler", true)!
             .InvokeMember("Start", BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Static, null, null,
-            [Program.baseDir, Program.gameName, Program.gamePath, new Action<string?, Color, string?, Color>(Logger.Log)]);
+            [Program.baseDir, Program.gameName, Program.gamePath, new Action<string?, byte, byte, byte, string?, byte, byte, byte>(Logger.Log)]);
     }
 
     private static nint OnIl2CppInit(nint domainName)

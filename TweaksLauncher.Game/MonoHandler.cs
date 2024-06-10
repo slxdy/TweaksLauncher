@@ -61,9 +61,9 @@ internal static unsafe class MonoHandler
         Mono.mono_runtime_invoke(startMethod, 0, args, null);
     }
 
-    private static void LogImpl(nint monoMessage, int baseColor, nint monoModuleName, int moduleColor)
+    private static void LogImpl(nint monoMessage, byte baseColorR, byte baseColorG, byte baseColorB, nint monoModuleName, byte moduleColorR, byte moduleColorG, byte moduleColorB)
     {
-        Logger.Log(monoMessage == 0 ? null : Mono.mono_string_to_utf16(monoMessage), Color.FromArgb(baseColor), monoModuleName == 0 ? null : Mono.mono_string_to_utf16(monoModuleName), Color.FromArgb(moduleColor));
+        Logger.Log(monoMessage == 0 ? null : Mono.mono_string_to_utf16(monoMessage), baseColorR, baseColorG, baseColorB, monoModuleName == 0 ? null : Mono.mono_string_to_utf16(monoModuleName), moduleColorR, moduleColorG, moduleColorB);
     }
 
     private static nint OnDomainInit(nint domainName, nint a)
@@ -80,5 +80,5 @@ internal static unsafe class MonoHandler
     }
 
     internal delegate nint MonoJitInitSig(nint domainName, nint a);
-    private delegate void LogImplSig(nint monoMessage, int baseColor, nint monoModuleName, int moduleColor);
+    private delegate void LogImplSig(nint monoMessage, byte baseColorR, byte baseColorG, byte baseColorB, nint monoModuleName, byte moduleColorR, byte moduleColorG, byte moduleColorB);
 }

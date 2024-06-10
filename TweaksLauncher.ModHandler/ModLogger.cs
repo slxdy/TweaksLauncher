@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace TweaksLauncher;
@@ -15,7 +14,7 @@ public static class ModLogger
     /// <param name="message">The message to print. If the message is an object, <see cref="object.ToString"/> will be used.</param>
     /// <param name="baseColor">Color of the message.</param>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void Log(object? message, Color baseColor = default)
+    public static void Log(object? message, LogColor baseColor = default)
     {
         var modAssembly = Assembly.GetCallingAssembly();
 

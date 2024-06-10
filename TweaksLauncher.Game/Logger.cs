@@ -21,6 +21,11 @@ internal static class Logger
         }
     }
 
+    public static void Log(string? message, byte baseColorR, byte baseColorG, byte baseColorB, string? moduleName, byte moduleColorR, byte moduleColorG, byte moduleColorB)
+    {
+        Log(message, Color.FromArgb(baseColorR, baseColorG, baseColorB), moduleName, Color.FromArgb(moduleColorR, moduleColorG, moduleColorB));
+    }
+
     public static void Log(string? message, Color baseColor = default, string? moduleName = null, Color moduleColor = default)
     {
         if (message == null && moduleName == null)
@@ -54,7 +59,7 @@ internal static class Logger
 
         if (message != string.Empty)
         {
-            if (baseColor.A == 0)
+            if (baseColor.R == 0 && baseColor.G == 0 && baseColor.B == 0)
                 baseColor = Color.LightCyan;
 
             message = message.Pastel(baseColor);
@@ -63,7 +68,7 @@ internal static class Logger
         var consoleLog = $"[{time.Pastel(Color.DarkGray)}]";
         if (moduleName != null)
         {
-            if (moduleColor.A == 0)
+            if (moduleColor.R == 0 && moduleColor.G == 0 && moduleColor.B == 0)
                 moduleColor = Color.Magenta;
 
             consoleLog += $"[{moduleName.Pastel(moduleColor)}]";

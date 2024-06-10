@@ -69,12 +69,12 @@ public class LoadedMod
             }
             catch (MissingMethodException)
             {
-                ModHandler.Log($"Mod interface doesn't implement an 'Initialize' method: '{iMod.InterfaceType.FullName}'", System.Drawing.Color.Red);
+                ModHandler.Log($"Mod interface doesn't implement an 'Initialize' method: '{iMod.InterfaceType.FullName}'", LogColor.Red);
             }
             catch (Exception ex)
             {
-                ModHandler.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", System.Drawing.Color.Red);
-                ModHandler.Log(ex.ToString(), System.Drawing.Color.Red);
+                ModHandler.Log($"Mod interface failed to initialize: '{iMod.InterfaceType.FullName}'", LogColor.Red);
+                ModHandler.Log(ex.ToString(), LogColor.Red);
             }
         }
     }

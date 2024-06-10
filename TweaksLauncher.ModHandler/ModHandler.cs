@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 using UnityEngine.SceneManagement;
@@ -24,7 +23,7 @@ namespace TweaksLauncher;
 public unsafe static class ModHandler
 {
 #if !MONO
-    private static Action<string?, Color, string?, Color> logFunc = null!;
+    private static Action<string?, byte, byte, byte, string?, byte, byte, byte> logFunc = null!;
 #endif
 
     private static bool initSceneLoaded;
@@ -47,7 +46,7 @@ public unsafe static class ModHandler
 
     internal static void Start(string baseDir, string gameName, string gameDir
 #if !MONO
-        , Action<string?, Color, string?, Color> logFunc
+        , Action<string?, byte, byte, byte, string?, byte, byte, byte> logFunc
 #endif
         )
     {
@@ -65,7 +64,7 @@ public unsafe static class ModHandler
         }
         catch
         {
-            Log($"Could not find the Unity version.", Color.Red);
+            Log($"Could not find the Unity version.", LogColor.Red);
             return;
         }
 
@@ -108,18 +107,18 @@ public unsafe static class ModHandler
         harmony.Patch(typeof(SceneManager).GetMethod("Internal_ActiveSceneChanged", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public), prefix: new(OnInternalActiveSceneChanged));
     }
 
-    internal static void Log(string? message, Color baseColor = default, string? moduleName = null, Color moduleColor = default)
+    internal static void Log(string? message, LogColor baseColor = default, string? moduleName = null, LogColor moduleColor = default)
     {
 #if MONO
-        LogInternal(message, baseColor.ToArgb(), moduleName, moduleColor.ToArgb());
+        LogInternal(message, baseColor.R, baseColor.G, baseColor.B, moduleName, moduleColor.R, moduleColor.G, moduleColor.B);
 #else
-        logFunc(message, baseColor, moduleName, moduleColor);
+        logFunc(message, baseColor.R, baseColor.G, baseColor.B, moduleName, moduleColor.R, moduleColor.G, moduleColor.B);
 #endif
     }
 
 #if MONO
     [MethodImpl(MethodImplOptions.InternalCall)]
-    private static extern void LogInternal(string? message, int baseColor, string? moduleName, int moduleColor);
+    private static extern void LogInternal(string? message, byte baseColorR, byte baseColorG, byte baseColorB, string? moduleName, byte moduleColorR, byte moduleColorG, byte moduleColorB);
 #endif
 
     private static void OnInternalActiveSceneChanged()
@@ -186,7 +185,7 @@ public unsafe static class ModHandler
     {
         if (!File.Exists(path))
         {
-            Log($"Could not find mod at: {path}", Color.Red);
+            Log($"Could not find mod at: {path}", LogColor.Red);
             return null;
         }
 
@@ -194,8 +193,8 @@ public unsafe static class ModHandler
 
         if (loadedMods.Exists(x => path.Equals(x.ModPath, StringComparison.OrdinalIgnoreCase)))
         {
-            Log($"Could not load mod from: {path}", Color.Red);
-            Log($"This mod is already loaded.", Color.Red);
+            Log($"Could not load mod from: {path}", LogColor.Red);
+            Log($"This mod is already loaded.", LogColor.Red);
             return null;
         }
 
@@ -207,15 +206,15 @@ public unsafe static class ModHandler
             name = modAssembly.GetName().Name;
             if (name == null)
             {
-                Log($"Could not load mod from: {path}", Color.Red);
-                Log($"Mod's assembly does not have a name.", Color.Red);
+                Log($"Could not load mod from: {path}", LogColor.Red);
+                Log($"Mod's assembly does not have a name.", LogColor.Red);
                 return null;
             }
         }
         catch
         {
-            Log($"Could not load mod from: {path}", Color.Red);
-            Log($"Invalid .net assembly.", Color.Red);
+            Log($"Could not load mod from: {path}", LogColor.Red);
+            Log($"Invalid .net assembly.", LogColor.Red);
             return null;
         }
 
@@ -227,8 +226,8 @@ public unsafe static class ModHandler
         }
         catch
         {
-            Log($"Could not load mod from: {path}", Color.Red);
-            Log($"Something went wrong while reading the assembly. The assembly might be targetting the wrong .net runtime version.", Color.Red);
+            Log($"Could not load mod from: {path}", LogColor.Red);
+            Log($"Something went wrong while reading the assembly. The assembly might be targetting the wrong .net runtime version.", LogColor.Red);
             return null;
         }
 
@@ -244,15 +243,15 @@ public unsafe static class ModHandler
 
         if (modInterfaces.Count == 0)
         {
-            Log($"Could not load mod from: {path}", Color.Red);
-            Log($"Mod does not implement any IMod interfaces.", Color.Red);
+            Log($"Could not load mod from: {path}", LogColor.Red);
+            Log($"Mod does not implement any IMod interfaces.", LogColor.Red);
             return null;
         }
 
         var mod = new LoadedMod(name, path, modAssembly, modInterfaces.AsReadOnly());
         loadedMods.Add(mod);
 
-        Log($"Mod loaded: {mod}", Color.LightGreen);
+        Log($"Mod loaded: {mod}", LogColor.LightGreen);
 
         if (modsInited)
             mod.Init();
@@ -260,12 +259,12 @@ public unsafe static class ModHandler
         return mod;
     }
 
-    internal static void HandleLog(object? message, Color baseColor, Assembly modAssembly)
+    internal static void HandleLog(object? message, LogColor baseColor, Assembly modAssembly)
     {
         var mod = loadedMods.Find(x => x.ModAssembly == modAssembly);
         if (mod == null)
             return;
 
-        Log(message?.ToString(), baseColor, mod.Name, Color.LightGreen);
+        Log(message?.ToString(), baseColor, mod.Name, LogColor.LightGreen);
     }
 }

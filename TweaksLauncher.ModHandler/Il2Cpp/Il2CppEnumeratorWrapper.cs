@@ -4,7 +4,6 @@ using Il2CppInterop.Runtime.Attributes;
 using Il2CppInterop.Runtime.Injection;
 using System;
 using System.Collections;
-using System.Drawing;
 
 namespace TweaksLauncher.Il2Cpp;
 
@@ -45,7 +44,7 @@ internal class Il2CppEnumeratorWrapper : Il2CppSystem.Object
         }
         catch (Exception e)
         {
-            ModHandler.Log(e.ToString(), Color.Red);
+            ModHandler.Log(e.ToString(), LogColor.Red);
 
             return false;
         }
