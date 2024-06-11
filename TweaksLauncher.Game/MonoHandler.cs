@@ -17,7 +17,7 @@ internal static unsafe class MonoHandler
         return GameManager.Start();
     }
 
-    private static void LoadModHandler(nint domain)
+    private static void LoadModHandler()
     {
         var handlerPath = Path.Combine(Program.baseDir, "bin", "Mono", "TweaksLauncher.dll");
         if (!File.Exists(handlerPath))
@@ -26,9 +26,8 @@ internal static unsafe class MonoHandler
             return;
         }
 
-        Mono.Init();
 
-        var modHandlerAsm = Mono.mono_domain_assembly_open(domain, handlerPath);
+        var modHandlerAsm = Mono.mono_domain_assembly_open(Mono.Domain, handlerPath);
         if (modHandlerAsm == 0)
         {
             Logger.Log($"Failed to load Mod Handler into the Mono domain.", Color.Red);
@@ -49,9 +48,9 @@ internal static unsafe class MonoHandler
         var logImplPtr = Marshal.GetFunctionPointerForDelegate(logImpl);
         Mono.mono_add_internal_call("TweaksLauncher.ModHandler::LogInternal", logImplPtr);
 
-        var baseDir = Mono.mono_string_new(domain, Program.baseDir);
-        var gameName = Mono.mono_string_new(domain, Program.gameName);
-        var gameDir = Mono.mono_string_new(domain, Program.gamePath);
+        var baseDir = Mono.NewString(Program.baseDir);
+        var gameName = Mono.NewString(Program.gameName);
+        var gameDir = Mono.NewString(Program.gamePath);
 
         var args = stackalloc nint[3];
         args[0] = baseDir;
@@ -73,8 +72,9 @@ internal static unsafe class MonoHandler
         Logger.Log("Creating Mono Domain");
 
         var domain = monoJitInit.Original(domainName, a);
+        Mono.Init(domain);
 
-        LoadModHandler(domain);
+        LoadModHandler();
 
         return domain;
     }
